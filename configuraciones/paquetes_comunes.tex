@@ -1,0 +1,54 @@
+% ==============================================
+%  PAQUETES COMUNES (SAFE FOR ARTICLES & THESIS)
+% ==============================================
+
+% --- ENCODING & FONTS ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{csquotes}
+
+% --- MATH & SCIENCE ---
+\usepackage{amsmath, amssymb, mathtools}
+\usepackage{siunitx}
+\sisetup{output-decimal-marker={.}}
+
+% --- TABLES ---
+\usepackage{array, booktabs, tabularx, longtable, multicol}
+
+% --- IMAGES & COLORS ---
+\usepackage{xcolor}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{graphicx} 
+\newcommand{\incluyeGrafico}[2][]{\includegraphics[#1]{#2}}
+
+% --- TIKZ & PLOTS ---
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=newest}
+\usetikzlibrary{positioning, shapes, arrows.meta, calc, chains}
+
+% --- UTILITIES ---
+\usepackage{lipsum}
+\usepackage{import}
+
+% --- BIBLIOGRAPHY ---
+\usepackage[
+    backend=biber,
+    style=apa, % Change to numeric or ieee if needed for articles
+    hyperref=true,
+    backref=true,
+    url=false
+]{biblatex}
+
+% --- COLORS ---
+\definecolor{colorEnlace}{rgb}{0,0,0.6}
+
+
+% Other imports, specific to the articles
+
+
+\subimport{3DFulltruckRTI/}{necessarypackages}
+

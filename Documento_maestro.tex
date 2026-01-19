@@ -1,0 +1,189 @@
+% ---------------------------------------------------------------------
+%                      DOCUMENTO DE EJEMPLO
+%                    QUE UTILIZA LA PLANTILLA
+%                      DE LA EDITORIAL DE LA
+%                UNIVERSITAT POLITÈCNICA DE VALÈNCIA
+% ---------------------------------------------------------------------
+
+\documentclass[tesi, crop, rm, english]{configuraciones/editorialupv}
+
+% Opciones de la clase 'editorialupv'
+%
+% llibre      - Libro docente
+% ebookpdf    - Libro en formato PDF para e-Readers
+% tesi        - Formato de tesis
+% a4          - Formato A4 para imprimir
+% a4e         - Formato A4 electrónico (márgenes simétricos)
+% rm          - Tipo de letra roman
+% sf          - Tipo de letra sanserif
+% crop        - Marcas de corte (cruz) 17x24 cm (+3 mm por los cuatro lados) centrada en una A4 
+% nocrop      - Sin marcas de corte, respeta el tamaño 17x24 cm 
+% nomathskip  - No se modifican las distancias de las ecuaciones 
+%
+% castellano  - La publicación está escrita en castellano
+% valencia    - La publicació està escrita en valencià
+% english     - La publicación está escrita en inglés
+%
+% literari    - La publicación tiene un formato literario
+
+% ---------------------------------------------------------------------
+% Configuraciones presonalizadas 
+
+\input{./configuraciones/preambulo}
+% \input{./configuraciones/preambulo_tcolorbox}
+% \input{./configuraciones/preambulo_listings_LaTeX} % Para incluir código LaTeX
+%\input{preambulo_listings} % Ejemplos de configuración para incluir código C, o Matlab
+
+\usepackage{import}
+\usepackage{rotating}
+\usetikzlibrary{positioning,chains}
+
+\usepackage{tikz}
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{placeins}
+\usepackage{tikz}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usetikzlibrary{positioning}
+\usepackage{adjustbox}
+\usepackage[flushleft]{threeparttable}
+\usepackage[singlelinecheck=false, labelfont=bf]{caption}
+\usepackage{array}
+
+% ¿Quieres cambiar el color de los enlaces?
+% Entonces descomenta la siguiente línea de código y configura el color
+
+% \colorlet{colorEnlace}{blue} 
+
+% ---------------------------------------------------------------------
+% Archivos con las referencias bibliográficas
+
+
+% ---------------------------------------------------------------------
+% Las carpetas para los gráficos
+
+\graphicspath{
+	{./figuras/}
+	{./logos/}
+	}
+
+% ---------------------------------------------------------------------
+
+\title{
+		Algoritmos de optimización de problemas de Producción Industrial y Logística en la Industria 4.0}
+
+
+\author{
+	\parbox{\textwidth}{\centering
+		\begin{tabular}{l@{\hspace{.75em}}l}
+			Autor: 		& Juan Moreno Malo\\[4ex]
+			Director: 	& D. Josefa Mula Bru\\[.5ex]
+						& D. Raul Poler
+		\end{tabular}
+		}
+	}
+
+% ---------------------------------------------------------------------
+% ---------------------------------------------------------------------
+% ---------------------------------------------------------------------
+\addbibresource{3DFulltruckRTI/references.bib}
+\addbibresource{RouteClustering/references.bib}
+
+
+
+
+\begin{document}
+	
+\input{configuraciones/referencias_cruzadas}
+
+% -------------------------------------------------------
+
+\frontmatter
+
+% -------------------------------------------------------
+% Página de título
+
+\maketitle
+
+% -------------------------------------------------------
+% Resumen, prólogo o prefacio
+
+\cleardoublepage
+
+
+	
+% -------------------------------------------------------
+% Índice: tabla de contenidos
+
+% Para seleccionar el nivel de títulos en la tabla de contenidos
+\setcounter{tocdepth}{1}
+% 1: Hasta \section{}
+% 2: Hasta \subsection{}
+% 3: Hasta \subsubsection{} (No recomendable)    
+
+\cleardoublepage
+\phantomsection
+\addcontentsline{toc}{chapter}{\contentsname}
+\tableofcontents
+        
+% -------------------------------------------------------
+% Lista de figuras
+\cleardoublepage
+\phantomsection
+\addcontentsline{toc}{chapter}{\listfigurename}
+\listoffigures
+
+% -------------------------------------------------------
+% Lista de tablas
+\cleardoublepage
+\phantomsection
+\addcontentsline{toc}{chapter}{\listtablename}
+\listoftables
+
+\cleardoublepage
+
+% -------------------------------------------------------
+% Numeración de páginas números arábicos
+% Primer capítulo en página 1
+
+\mainmatter
+
+% -------------------------------------------------------
+% -------------------------------------------------------
+% -------------------------------------------------------
+% Capítulos de la publicación
+
+\subimport{RouteClustering/}{RouteClustering.tex}
+\subimport{LiteratureReviewRTIs/}{main.tex}
+
+\chapter{An optimisation approach for supply chain procurement transport operational planning with 3D full-truck loading constraints and returnable transport items}
+\subimport{3DFulltruckRTI/}{main.tex}
+
+
+% -------------------------------------------------------
+% -------------------------------------------------------
+% -------------------------------------------------------
+% Bibliografía
+
+
+% -------------------------------------------------------
+% Índice alfabético
+
+\cleardoublepage
+\phantomsection
+\addcontentsline{toc}{chapter}{\indexname}
+
+\printindex
+
+
+% -------------------------------------------------------
+% Fin del documento
+
+\end{document}
+
+% ---------------------------------------------------------------------
+% ---------------------------------------------------------------------
+% ---------------------------------------------------------------------

@@ -1,0 +1,40 @@
+\documentclass[tesi, crop, rm, english]{configuraciones/editorialupv}
+
+\input{configuraciones/preambulo}
+\input{configuraciones/referencias_cruzadas}
+
+% Global graphicspath (Optional backup, but subimport handles most of it)
+\graphicspath{{./configuraciones/logos/}}
+
+\addbibresource{3DFulltruckRTI/references.bib}
+% Load ALL bibliographies
+\addbibresource{ch2_lit_review_article/references.bib}
+\addbibresource{ch4_route_clustering_article/references.bib}
+\addbibresource{ch5_3d_fulltruck_article/references.bib}
+
+\title{Optimization Algorithms in Industry 4.0}
+\author{Juan Moreno Malo}
+
+\begin{document}
+
+\frontmatter
+\maketitle
+\tableofcontents
+\listoffigures
+
+\mainmatter
+
+% Using subimport allows the figures inside content.tex 
+% to be found in the local 'figuras' folder automatically.
+\subimport{ch1_intro/}{content.tex}
+\subimport{ch2_lit_review_article/}{content.tex}
+\subimport{ch3_methodology/}{content.tex}
+\subimport{3DFulltruckRTI/}{main.tex}
+\subimport{ch4_route_clustering_article/}{content.tex}
+\subimport{ch5_3d_fulltruck_article/}{content.tex}
+\subimport{ch6_results/}{content.tex}
+\subimport{ch7_conclusions/}{content.tex}
+
+\printbibliography[heading=bibintoc, title={Bibliography}]
+
+\end{document}

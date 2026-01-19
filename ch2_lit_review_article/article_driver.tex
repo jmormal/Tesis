@@ -1,0 +1,19 @@
+\documentclass{article}
+% 1. Load Language manually (Since we aren't using the Thesis class)
+\usepackage[english]{babel}
+
+% 2. Load the SAFE packages (Not preambulo.tex)
+\input{../configuraciones/paquetes_comunes}
+
+% 3. Load Hyperref for articles
+\usepackage[colorlinks=true, linkcolor=colorEnlace, citecolor=colorEnlace]{hyperref}
+
+\addbibresource{references.bib}
+\let\chapter\section 
+
+\begin{document}
+\title{Literature Review Article}
+\maketitle
+\input{content.tex}
+\printbibliography
+\end{document}

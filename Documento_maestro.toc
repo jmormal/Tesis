@@ -1,0 +1,37 @@
+\babel@toc {english}{}\relax 
+\contentsline {chapter}{Contents}{iii}{}%
+\contentsline {chapter}{List of Figures}{v}{}%
+\contentsline {chapter}{List of Tables}{vii}{}%
+\contentsline {chapter}{\numberline {1}Route Clustering Algorithms for Procurement Transport }{1}{}%
+\contentsline {section}{\numberline {1.1}Introduction}{1}{}%
+\contentsline {section}{\numberline {1.2}Literature Review}{3}{}%
+\contentsline {section}{\numberline {1.3}Problem Description}{4}{}%
+\contentsline {section}{\numberline {1.4}Mathematical Formulation}{7}{}%
+\contentsline {section}{\numberline {1.5}Branch and Price Solution Approach}{10}{}%
+\contentsline {subsection}{\numberline {1.5.1}Formulation of the Master Problem and the Reduced Master Problem}{11}{}%
+\contentsline {subsection}{\numberline {1.5.2}Pricing Subproblem}{12}{}%
+\contentsline {subsection}{\numberline {1.5.3}Branching}{15}{}%
+\contentsline {section}{\numberline {1.6}Computational Experiments}{15}{}%
+\contentsline {section}{\numberline {1.7}SCRC As A Decision Support Tool}{16}{}%
+\contentsline {section}{\numberline {1.8}Conclusions and Future Research}{17}{}%
+\contentsline {chapter}{\numberline {2}State of the art Returnable transport items}{19}{}%
+\contentsline {section}{\numberline {2.1} Abstract }{19}{}%
+\contentsline {section}{\numberline {2.2}Introduction}{20}{}%
+\contentsline {section}{\numberline {2.3}Methodology}{21}{}%
+\contentsline {chapter}{\numberline {3}An optimisation approach for supply chain procurement transport operational planning with 3D full-truck loading constraints and returnable transport items}{25}{}%
+\contentsline {section}{\numberline {3.1}Introduction}{26}{}%
+\contentsline {section}{\numberline {3.2}Literature Review}{27}{}%
+\contentsline {subsection}{\numberline {3.2.1}Procurement transport and inventory planning}{27}{}%
+\contentsline {subsection}{\numberline {3.2.2}Procurement Transport with RTIs}{29}{}%
+\contentsline {subsection}{\numberline {3.2.3}Container loading}{29}{}%
+\contentsline {subsection}{\numberline {3.2.4}Research Gaps \& Methodology}{32}{}%
+\contentsline {section}{\numberline {3.3}Problem Description}{35}{}%
+\contentsline {section}{\numberline {3.4}Mathematical model}{37}{}%
+\contentsline {section}{\numberline {3.5}Matheuristic Procedure}{45}{}%
+\contentsline {subsection}{\numberline {3.5.1}PLC-SCPTOP}{45}{}%
+\contentsline {subsection}{\numberline {3.5.2}Meta-Heuristic Procedure}{48}{}%
+\contentsline {subsubsection}{Loading Procedure}{49}{}%
+\contentsline {section}{\numberline {3.6}Computational and comparative analysis}{50}{}%
+\contentsline {section}{\numberline {3.7}Practical application}{52}{}%
+\contentsline {section}{\numberline {3.8}Conclusions}{53}{}%
+\contentsline {section}{\numberline {.1}Mathematical Model}{54}{}%

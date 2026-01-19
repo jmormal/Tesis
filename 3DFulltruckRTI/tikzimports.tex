@@ -1,0 +1,64 @@
+\newcommand\lbo{0.5}
+\newcommand\wbo{1}
+\newcommand\hbo{1}
+\newcommand\lbt{2}
+\newcommand\wbt{1}
+\newcommand\hbt{1}
+\newcommand\separationofcircles{0.1}
+
+
+\tikzset{
+    single_redbox/.pic={
+    \draw[red, dashed, opacity=0.5] (0-\lbo,0-\wbo,0-\hbo) -- ++(0,0,\hbo);
+    \draw[red, dashed, opacity=0.5] (0-\lbo,0-\wbo,0-\hbo) -- ++(0,\wbo,0);
+    \draw[red, dashed, opacity=0.5] (0-\lbo,0-\wbo,0-\hbo) -- ++(\lbo,0,0);
+    
+    % Draw front faces
+    \draw[red, fill=red!20, opacity=0.5] (0,0,0) -- ++(-\lbo,0,0) -- ++(0,-\wbo,0) -- ++(\lbo,0,0) -- cycle;
+    \draw[red, fill=red!30, opacity=0.5] (0,0,0) -- ++(0,0,-\hbo) -- ++(0,-\wbo,0) -- ++(0,0,\hbo) -- cycle;
+    \draw[red, fill=red!40, opacity=0.5] (0,0,0) -- ++(-\lbo,0,0) -- ++(0,0,-\hbo) -- ++(\lbo,0,0) -- cycle;
+    }
+}
+\tikzstyle{line} = [draw, -Latex]
+
+\newcommand{\neworrenewcommand}[1]{\providecommand{#1}{}\renewcommand{#1}}
+
+\newcommand{\drawblock}[9]{
+    \neworrenewcommand{\ffoo}[1]{
+           
+        \foreach \i in {0,...,#8} {
+            \foreach \j in {0,...,#9} {
+                \foreach \k in {0,...,##1} {
+                    % Only draw the visible faces
+                    % Front face
+                    \ifnum \i=#8
+                        \draw[#7, fill=#7!50] (#1+\i*#4+#4,#2+\j*#5,#3+\k*#6) -- ++(0,#5,0) -- ++(0,0,#6) -- ++(0,-#5,0) -- cycle;
+                    \fi
+                    % Right face
+                    \ifnum \j=#9
+                        \draw[#7, fill=#7!30] (#1+\i*#4,#2+#5+\j*#5,#3+\k*#6) -- ++(#4,0,0) -- ++(0,0,#6) -- ++(-#4,0,0) -- cycle;
+                    \fi
+                    % Top face
+                    \ifnum \k=##1
+                        \draw[#7, fill=#7!20] (#1+\i*#4,#2+\j*#5,#3+#6+\k*#6) -- ++(#4,0,0) -- ++(0,#5,0) -- ++(-#4,0,0) -- cycle;
+                    \fi
+                    % Draw a point at each vertex
+                    % \fill (#1+\i*#4,#2+\j*#5,#3+\k*#6) circle (1pt);
+                }
+            }
+        }
+    
+    }
+    \ffoo
+}
+
+
+
+      \tikzset{
+    box/.style={rectangle, draw, fill=gray!20, align=center, minimum height=1cm, minimum width=2.5cm},
+    ellip/.style={draw, ellipse, align=center, minimum width=2.5cm, minimum height=1cm},
+    label_node/.style={circle, draw, fill=#1, text=black, inner sep=1pt, minimum size=1em, font=\bfseries},
+    gene_node/.style={ align=center, inner sep=2pt, fill=white, minimum width=0.5cm, minimum height=1cm},
+    gene_group/.style={rectangle, draw, inner sep=6pt, rounded corners, align=center, minimum height=2.5cm},
+    aux_gene_group/.style={align=center, inner sep=2pt, minimum width=2cm, minimum height=1cm}
+  }
