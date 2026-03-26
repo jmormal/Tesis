@@ -1,0 +1,131 @@
+
+\section{Mathematical Model}
+
+\begin{longtable}{|p{0.19\textwidth}|p{0.8\textwidth}|}
+\caption{Model nomenclature}
+\label{tab:nomenclature}\\
+\hline
+\multicolumn{2}{|l|}{\textbf{Indices and Sets}}\\ \hline
+$V$ & Set of nodes representing manufacturing plants, $i, j \in V$ \\
+$E$ & Set of directed edges representing potential transport lanes,
+      $E \subseteq V \times V$ \\
+\hline
+\multicolumn{2}{|l|}{\textbf{Parameters}}\\ \hline
+$\mu_{ij}$     & Daily average number of full RTIs shipped from node $i$
+                 to node $j$, $(i,j)\in E$ \\
+$ric_{ij}$     & Fraction of full RTI shipments on lane $(i,j)$ that
+                 require a return inlay \\
+$c^{f}_{ij}$,\ $c^{e}_{ij}$ & Unit transport cost per RTI on lane $(i,j)$
+                 for full and empty flows, respectively \\
+$M$            & Sufficiently large constant (big-M) \\
+\hline
+\multicolumn{2}{|l|}{\textbf{Decision Variables}}\\ \hline
+\multicolumn{2}{|l|}{\textit{Binary variables}}\\ \hline
+$X_{ij}$  & 1 if lane $(i,j)$ is active for any RTI flow, 0 otherwise \\
+$XF_{ij}$ & 1 if lane $(i,j)$ carries full RTIs, 0 otherwise \\
+$XI_{ij}$ & 1 if lane $(i,j)$ carries return inlays, 0 otherwise \\
+$XE_{ij}$ & 1 if lane $(i,j)$ carries empty RTIs, 0 otherwise \\
+\hline
+\multicolumn{2}{|l|}{\textit{Flow variables}}\\ \hline
+$NF_{ij}$ & Daily average number of full RTIs sent from $i$ to $j$ \\
+$NI_{ij}$ & Daily average number of return inlays sent from $i$ to $j$ \\
+$NE_{ij}$ & Daily average number of empty RTIs sent from $i$ to $j$ \\
+\hline
+\multicolumn{2}{|l|}{\textit{Cost variables}}\\ \hline
+$CF_{ij}$,\ $CI_{ij}$,\ $CE_{ij}$ & Daily transport cost on lane $(i,j)$
+                 for full RTIs, return inlays, and empty RTIs, respectively \\
+\hline
+\end{longtable}
+
+The objective minimises the total daily transport cost across all lanes and
+flow types:
+
+%
+\begin{align}
+  \min \quad & \sum_{(i,j)\in E}
+    \bigl(CF_{ij} + CI_{ij} + CE_{ij}\bigr)
+  \label{eq:objective}
+\end{align}
+
+\paragraph{Daily transport costs.}
+The daily transport cost on each lane is defined for each flow type. Full RTIs
+and return inlays share the same unit cost, as inlays travel consolidated with
+full shipments; empty RTIs are charged at their own rate:
+%
+\begin{align}
+  CF_{ij} &= NF_{ij}\cdot c^{f}_{ij}
+    && \forall\,(i,j)\in E
+    \label{eq:cost-full}\\
+  CI_{ij} &= NI_{ij}\cdot c^{f}_{ij}
+    && \forall\,(i,j)\in E
+    \label{eq:cost-inlay}\\
+  CE_{ij} &= NE_{ij}\cdot c^{e}_{ij}
+    && \forall\,(i,j)\in E
+    \label{eq:cost-empty}
+\end{align}
+
+\paragraph{Flow conservation.}
+The total number of RTIs entering each node must equal the total number leaving
+it, ensuring a closed-loop network:
+%
+\begin{align}
+  \sum_{j \in V}\!\bigl(NE_{ij}+NF_{ij}+NI_{ij}\bigr)
+  &= \sum_{j \in V}\!\bigl(NE_{ji}+NF_{ji}+NI_{ji}\bigr)
+  && \forall\, i \in V
+  \label{eq:flow-conservation}
+\end{align}
+
+\paragraph{Fixed full-RTI and inlay flows.}
+Full RTI flows are determined by production plans and are therefore treated as
+input parameters. Return inlays must be sent back on the reverse lane in
+proportion to the full shipments that required them:
+%
+\begin{align}
+  NF_{ij} &= \mu_{ij}
+    && \forall\,(i,j) \in E
+    \label{eq:full-flow-fixed} \\
+  NI_{ji} &= ric_{ij}\cdot\mu_{ij}
+    && \forall\,(i,j) \in E
+    \label{eq:inlay-flow-fixed}
+\end{align}
+
+\paragraph{Lane activation.}
+A lane is considered active if and only if it carries at least one type of RTI
+flow. The aggregate activation variable $X_{ij}$ is linked to the
+type-specific variables as follows:
+%
+\begin{align}
+  X_{ij} &\geq XF_{ij},\quad
+  X_{ij} \geq XI_{ij},\quad
+  X_{ij} \geq XE_{ij}
+    && \forall\,(i,j) \in E
+    \label{eq:lane-activation-lb} \\
+  X_{ij} &\leq XF_{ij} + XI_{ij} + XE_{ij}
+    && \forall\,(i,j) \in E
+    \label{eq:lane-activation-ub}
+\end{align}
+
+\paragraph{Flow--binary consistency.}
+Each type-specific binary variable is active if and only if a positive flow
+of the corresponding RTI type is present on that lane:
+%
+\begin{align}
+  NF_{ij} &\leq M\cdot XF_{ij}
+    && \forall\,(i,j) \in E
+    \label{eq:bigM-full} \\
+  NI_{ij} &\leq M\cdot XI_{ij}
+    && \forall\,(i,j) \in E
+    \label{eq:bigM-inlay} \\
+  NE_{ij} &\leq M\cdot XE_{ij}
+    && \forall\,(i,j) \in E
+    \label{eq:bigM-empty} \\[4pt]
+  XF_{ij} &\leq NF_{ij}
+    && \forall\,(i,j) \in E
+    \label{eq:lb-full} \\
+  XI_{ij} &\leq NI_{ij}
+    && \forall\,(i,j) \in E
+    \label{eq:lb-inlay} \\
+  XE_{ij} &\leq NE_{ij}
+    && \forall\,(i,j) \in E
+    \label{eq:lb-empty}
+\end{align}

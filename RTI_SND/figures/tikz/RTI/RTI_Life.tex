@@ -1,0 +1,94 @@
+\begin{tikzpicture}[node distance=3.2cm and 4.0cm]
+
+  %% ── Nodes ─────────────────────────────────────────────────────────────────
+  \node[procbox=stockcolor]  (pool)
+    {RTI\\Pool / Stock};
+
+  \node[procbox=fullcolor, right=of pool]  (supplier)
+    {Supplier\\(Loading)};
+
+  \node[procbox=fullcolor, right=of supplier]  (transit_full)
+    {In Transit\\(Full RTI)};
+
+  \node[procbox=fullcolor, right=of transit_full]  (customer)
+    {Customer\\(Unloading)};
+
+  \node[procbox=emptycolor, below=2.4cm of customer]  (transit_empty)
+    {In Transit\\(Empty RTI)};
+
+  \node[procbox=repaircolor, below=2.4cm of pool]  (repair)
+    {Repair \&\\Cleaning};
+
+  %% ── Full-RTI flow (top row, left → right) ─────────────────────────────────
+  \draw[fullarrow]
+    (pool.east) -- (supplier.west)
+    node[midway, above, font=\tiny\bfseries, color=stockcolor]
+      {allocate RTIs};
+
+  \draw[fullarrow]
+    (supplier.east) -- (transit_full.west)
+    node[midway, above, font=\tiny\bfseries, color=fullcolor]
+      {ship full RTIs};
+
+  \draw[fullarrow]
+    (transit_full.east) -- (customer.west)
+    node[midway, above, font=\tiny\bfseries, color=fullcolor]
+      {deliver};
+
+  %% ── Empty-RTI return flow (bottom row, right → left) ──────────────────────
+  \draw[emptyarrow]
+    (customer.south) -- (transit_empty.north)
+    node[midway, right, font=\tiny\bfseries, color=emptycolor]
+      {emptied};
+
+  \draw[emptyarrow]
+    (transit_empty.west) -- (repair.east)
+    node[midway, below, font=\tiny\bfseries, color=emptycolor]
+      {return empty RTIs};
+
+\  \draw[repairarrow]
+    (repair.north) -- (pool.south)
+    node[midway, left, font=\tiny\bfseries, color=repaircolor]
+      {cleaned \& repaired};
+
+  %% ── Damage / maintenance bypass ───────────────────────────────────────────
+  \draw[repairarrow, bend right=25]
+    (customer.south east) to
+    node[midway, right, font=\tiny\bfseries, color=repaircolor]
+      {damaged RTIs}
+    (repair.east);
+
+  %% ── Scrap / disposal ──────────────────────────────────────────────────────
+  \node[procbox={gray}, below=1.2cm of repair, minimum width=2.0cm]
+    (scrap) {Scrap /\\Disposal};
+
+  \draw[-{Stealth[length=7pt]}, line width=1.2pt, color=gray!70, dashed]
+    (repair.south) -- (scrap.north)
+    node[midway, right, font=\tiny\bfseries, color=gray]
+      {beyond repair};
+
+  %% ── Procurement arrow (new RTIs into pool) ────────────────────────────────
+  \node[procbox={orange!80!red}, above=1.6cm of pool] (purchase)
+    {Purchase\\New RTIs};
+
+  \draw[-{Stealth[length=7pt]}, line width=1.4pt, color=orange!80!red]
+    (purchase.south) -- (pool.north)
+    node[midway, right, font=\tiny\bfseries, color=orange!80!red]
+      {replenishment};
+
+  %% ── Legend ────────────────────────────────────────────────────────────────
+  \begin{scope}[shift={(0,-5.8)}]
+    \draw[fullarrow]  (0,0) -- (1.0,0)
+      node[right, font=\tiny, color=black] {Full RTI flow};
+    \draw[emptyarrow] (3.5,0) -- (4.5,0)
+      node[right, font=\tiny, color=black] {Empty RTI flow};
+    \draw[repairarrow](7.0,0) -- (8.0,0)
+      node[right, font=\tiny, color=black] {Repair / Cleaning flow};
+  \end{scope}
+
+  %% ── Title ─────────────────────────────────────────────────────────────────
+  \node[font=\large\bfseries, above=0.3cm of purchase]
+    {Figure 1 \;–\; RTI Lifecycle State Flow};
+
+\end{tikzpicture}
+

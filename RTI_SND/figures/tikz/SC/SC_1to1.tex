@@ -1,0 +1,39 @@
+\begin{tikzpicture}
+
+  \placeSCnodes
+
+  %% ── Full RTI routes (black) ───────────────────────────────────────────────
+  \draw[routefull] (A) -- (B)
+    node[midway, below=3pt, font=\scriptsize\bfseries]{10};
+  \draw[routefull] (B) -- (C)
+    node[midway, right=3pt, font=\scriptsize\bfseries]{15};
+  \draw[routefull] (D) -- (A)
+    node[midway, left=3pt,  font=\scriptsize\bfseries]{10};
+  \draw[routefull] (E) -- (F)
+    node[midway, right=3pt, font=\scriptsize\bfseries]{10};
+
+  %% ── Empty RTI return routes (blue, slight offset) ─────────────────────────
+  \draw[routeempty, transform canvas={yshift= 4pt}]
+    (B) -- (A) node[midway, above=1pt, font=\scriptsize\bfseries, color=blue!70]{10};
+  \draw[routeempty, transform canvas={xshift=-4pt}]
+    (C) -- (B) node[midway, left=1pt,  font=\scriptsize\bfseries, color=blue!70]{15};
+  \draw[routeempty, transform canvas={xshift= 4pt}]
+    (A) -- (D) node[midway, right=1pt, font=\scriptsize\bfseries, color=blue!70]{10};
+  \draw[routeempty, transform canvas={yshift= 4pt}]
+    (F) -- (E) node[midway, above=1pt, font=\scriptsize\bfseries, color=blue!70]{10};
+
+%% ── Legend ────────────────────────────────────────────────────────────────
+  \begin{scope}[shift={(\legendCoord)}]
+    \node[scnode] (ln) at (0, 0) {};
+    \node[right=0.1cm of ln, font=\scriptsize, text width=2.4cm] {SC nodes};
+    
+    \draw[routefull]  (-0.2, -0.6) -- (0.8, -0.6)
+      node[right, font=\scriptsize] {Routes of full RTIs};
+      
+    \draw[routeempty] (-0.2, -1.2) -- (0.8, -1.2)
+      node[right, font=\scriptsize] {Return of empty RTIs};
+  \end{scope}
+
+
+
+\end{tikzpicture}

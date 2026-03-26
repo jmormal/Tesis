@@ -1,0 +1,193 @@
+\begin{convention}[Index suppression and aggregation from the root variable]
+\label{conv:notation}
+
+Every variable in the model is defined with a fixed ordered tuple of
+\textbf{root indices} $(a_1, a_2, \dots, a_k)$, each ranging over a
+finite set $S_1, S_2, \dots, S_k$ respectively.
+The full collection of root instances
+\[
+  \bigl\{\,\phi_{a_1 \cdots a_k} : a_\ell \in S_\ell,\ \ell = 1,\dots,k\bigr\}
+\]
+can be thought of as a table: each row is one tuple
+$(a_1,\dots,a_k)\in S_1\times\cdots\times S_k$, each column
+corresponds to one index, and the entry is the value of $\phi$ at
+that tuple.
+We call this the \textbf{root form} of $\phi$.
+
+Writing a variable with a \emph{strict subset} of its root indices
+always denotes a \textbf{derived form}: the missing indices have been
+suppressed and their values aggregated according to the rules below.
+Because the written indices identify exactly which columns have been
+retained, the aggregate is unambiguous and no additional decoration
+is required.
+
+Figure~\ref{fig:index-lattice} illustrates the full derivation lattice.
+
+% ------------------------------------------------------------------
+\medskip
+\noindent\textbf{Rule~1 (Sum aggregation).
+  Applies to all variable types: continuous, integer, and binary.}
+
+Suppressing one or more indices from $\phi$ corresponds to the
+following operation on the root table: remove the columns for the
+suppressed indices, then replace every group of rows that agree on
+all remaining columns with a single row whose value is their sum.
+The result is a new table indexed by the retained indices alone.
+
+Formally, suppressing index $a_\ell$ yields the variable
+$\phi_{a_1 \cdots a_{\ell-1}\, a_{\ell+1} \cdots a_k}$, defined by
+%
+\begin{equation*}
+  \phi_{a_1 \cdots a_{\ell-1}\, a_{\ell+1} \cdots a_k}
+  \;\coloneqq\;
+  \sum_{a_\ell \in S_\ell}
+  \phi_{a_1 \cdots a_k}.
+\end{equation*}
+%
+Suppressing several indices simultaneously applies the same
+operation once per suppressed column; the result is the same
+regardless of the order in which columns are removed, and the
+retained indices are written in their original relative order.
+
+For continuous and integer variables this is the natural
+interpretation.
+For binary variables the result is an \emph{integer count} of how
+many root-level binaries in the group equal~1; it is not itself
+binary.
+No new variable is introduced by Rule~1, and no constraint is
+required.
+
+% ------------------------------------------------------------------
+\medskip
+\noindent\textbf{Rule~2 (Dot notation for coincident index pairs).}
+
+When two root indices range over the \emph{same} set $S_\ell = S_p$,
+the columns they occupy in the root table are drawn from an identical
+domain.
+In that case, suppressing one while retaining the other is
+ambiguous by position alone, since the surviving index name does not
+reveal which of the two identical-domain columns was removed.
+A dot~$(\,\cdot\,)$ placed in the position of the suppressed index
+resolves this ambiguity explicitly:
+%
+\begin{equation*}
+  \phi_{a_1 \cdots \cdot \cdots a_p \cdots a_k}
+  \;\coloneqq\;
+  \sum_{a_\ell \in S_\ell} \phi_{a_1 \cdots a_\ell \cdots a_p \cdots a_k},
+\end{equation*}
+%
+where the dot occupies position $\ell$ and $a_p$ is retained.
+The symmetric case, retaining position $\ell$ and suppressing
+position $p$, is written analogously with the dot in position $p$.
+Outside of such coincident pairs the written indices already
+identify the retained columns unambiguously, so the dot is never
+needed elsewhere.
+Rule~1 applies as normal: the result is a sum, and for binary
+variables it is an integer count.
+
+% ------------------------------------------------------------------
+\medskip
+\noindent\textbf{Rule~3 (OR-aggregated binaries).
+  A new binary variable derived from the sum aggregate.}
+
+For binary variables, the sum aggregate produced by Rule~1 is an
+integer count and is not itself binary.
+When a binary indicator is needed at a coarser granularity---one
+that signals whether \emph{at least one} root-level binary in the
+group equals~1---a genuinely new binary decision variable is
+introduced.
+It is denoted by placing an overline over the variable symbol
+($\overline{\phi}$) and carries the same retained indices as the
+corresponding sum aggregate.
+
+This variable is not a notational shorthand: it must be declared in
+the solver and its relationship to the sum aggregate enforced by an
+explicit big-$M$ pair.
+Suppressing index $a_\ell$ from a binary variable $\phi$ yields the
+sum aggregate
+$\phi_{a_1 \cdots a_{\ell-1}\, a_{\ell+1} \cdots a_k}$
+(an integer count, by Rule~1) and the new binary
+$\overline{\phi}_{a_1 \cdots a_{\ell-1}\, a_{\ell+1} \cdots a_k}$,
+linked by:
+%
+\begin{align}
+  \overline{\phi}_{a_1 \cdots a_{\ell-1}\, a_{\ell+1} \cdots a_k}
+    &\leq
+    \phi_{a_1 \cdots a_{\ell-1}\, a_{\ell+1} \cdots a_k}
+  \label{eq:or-lb} \\
+  \phi_{a_1 \cdots a_{\ell-1}\, a_{\ell+1} \cdots a_k}
+    &\leq
+    M \cdot \overline{\phi}_{a_1 \cdots a_{\ell-1}\, a_{\ell+1} \cdots a_k}
+  \label{eq:or-ub}
+\end{align}
+%
+Constraint~\eqref{eq:or-lb} forces $\overline{\phi}$ to~0 when the
+count is~0 (no root binary in the group is active).
+Constraint~\eqref{eq:or-ub} forces $\overline{\phi}$ to~1 when the
+count is positive (at least one root binary is active).
+Together they enforce
+$\overline{\phi} = 1 \iff \phi_{a_1 \cdots a_{\ell-1}\, a_{\ell+1} \cdots a_k} \geq 1$.
+
+The same construction applies when several indices are suppressed
+simultaneously: $\overline{\phi}$ is then indexed by all retained
+columns, and the big-$M$ pair is stated in terms of the corresponding
+multi-index sum aggregate.
+
+% ------------------------------------------------------------------
+\medskip
+\noindent\textbf{Rule~4 (Exactly-one variant).
+  An OR aggregate with an additional global restriction.}
+
+In some cases the OR aggregates formed by Rule~3, viewed as a table
+indexed by the retained indices, must satisfy the stronger condition
+that \emph{exactly one} entry in each group of rows sharing a fixed
+combination of all retained indices except $a_p$ equals~1.
+Rather than introducing a further variable, the same OR aggregate
+$\overline{\phi}$ from Rule~3 is reused and marked with a hat
+($\hat{\phi}$) to signal that the following equality is imposed on
+top of constraints~\eqref{eq:or-lb}--\eqref{eq:or-ub}:
+%
+\begin{align}
+  \sum_{a_p} \hat{\phi}_{a_1 \cdots a_{\ell-1}\, a_{\ell+1} \cdots a_k}
+    &= 1.
+  \label{eq:exactly-one}
+\end{align}
+%
+That is, $\hat{\phi}$ and $\overline{\phi}$ are the \emph{same
+variable}---the OR aggregate of $\phi$ over $a_\ell$, constructed
+identically via Rules~1 and~3.
+The hat is purely a diacritic: it warns the reader that
+constraint~\eqref{eq:exactly-one} further restricts the feasible
+pattern of values across $a_p$.
+Whereas plain OR aggregation allows any subset of rows to be
+simultaneously active, the hat enforces that the sum of those OR
+aggregates over all admissible values of $a_p$, for each fixed
+combination of the remaining retained indices, equals exactly one.
+
+% ------------------------------------------------------------------
+%  TIKZ LATTICE
+% ------------------------------------------------------------------
+\begin{figure}[H]
+\centering
+\resizebox{0.95\linewidth}{!}{%
+  \input{figures/tikz/notation/notation_diagram.tex}}
+\caption{%
+  Derivation lattice for a generic variable $\phi$ (left panel,
+  continuous or integer) and its binary counterpart $X$ (right
+  panel), separated by the dashed vertical rule.
+  On the left, every arrow represents a sum aggregation
+  (Rules~1--2): purely notational, no new variable introduced.
+  On the right, solid arrows represent the same sum aggregation
+  applied to binary variables, producing an integer count.
+  Dashed arrows introduce a genuinely new solver variable (dashed
+  border): the OR aggregate $\overline{X}$ (Rule~3), defined as a
+  binary proxy for whether the count is positive, enforced by the
+  big-$M$ pair shown in each node.
+  The hat variant $\hat{X}$ (Rule~4) is the same variable as the
+  corresponding OR aggregate with the additional
+  constraint~\eqref{eq:exactly-one} in force.%
+}
+\label{fig:index-lattice}
+\end{figure}
+
+\end{convention}

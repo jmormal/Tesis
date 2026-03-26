@@ -1,0 +1,43 @@
+This paper proposes a new mixed integer linear mathematical programming (MILP) model, dubbed as SND-RTI (Service Network Design for Returnable Transport Items), for procurement transport planning in manufacturing supply chains. 
+The model integrates transport decisions while accounting for managing returnable transport items (RTIs).
+Thus, we optimise the strategic decisions in terms of allocated RTIs, purchased RTIs, direct and return routes and Q-days.
+The optimisation model aims to minimise transportation and inventory costs.
+Regarding inventory and transport efficiency, the results of the 3D-SCPTOP model are superior to the company procedures.
+
+\keywords{ Procurement, inventory, transport planning,  full-truckload, 3D container loading }
+\section{Introduction}
+
+\section{Literature Review}
+
+\subsection{Research Gaps \& Methodology}
+
+\input{figures/tikz/tikz_definitions.tex}
+\input{problemStatement.tex}
+
+Given:
+\begin{itemize}
+    \item Flow of full RTIs across the supply chain.
+    \item Safety Stocks of the supply chain nodes.
+    \item Economic and environmental Transport Costs across the supply chain.
+\end{itemize}
+
+
+To determine:
+
+ \begin{itemize}
+     \item Transport decisions, including routes and method of transport.
+     \item Number of RTIs needed in the network.
+ \end{itemize}
+
+ 
+
+KPIs: One to One comparison. 
+% \input{models/base.tex}
+
+% \input{models/base_q.tex}:while
+\input{models/base_new.tex}
+
+% \input{models/formal-logic-definition.tex}
+
+% \input{models/compact.tex}
+

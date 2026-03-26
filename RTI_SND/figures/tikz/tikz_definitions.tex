@@ -1,0 +1,70 @@
+% ─── Colour palette ────────────────────────────────────────────────────────────
+\definecolor{fullcolor}{RGB}{30,100,180}      % deep blue  – full RTIs
+\definecolor{emptycolor}{RGB}{220,80,40}      % red-orange – empty RTIs
+\definecolor{repaircolor}{RGB}{80,160,60}     % green      – repair/clean
+\definecolor{stockcolor}{RGB}{130,60,180}     % purple     – stock/pool
+\definecolor{nodebg}{RGB}{245,248,255}
+\definecolor{arrowgray}{RGB}{90,90,90}
+
+\tikzset{
+  % ── State node ──
+  statenode/.style={
+    circle, draw=#1!80!black, fill=#1!15, line width=1.4pt,
+    minimum size=2.0cm, align=center, font=\small\bfseries, text=#1!60!black
+  },
+  % ── Rounded-rectangle process box ──
+  procbox/.style={
+    rectangle, rounded corners=6pt,
+    draw=#1!80!black, fill=#1!10, line width=1.2pt,
+    minimum width=2.6cm, minimum height=1.1cm,
+    align=center, font=\small\bfseries, text=#1!60!black
+  },
+  % ── Arrows ──
+  fullarrow/.style={
+    -{Stealth[length=8pt]}, line width=1.6pt, color=fullcolor
+  },
+  emptyarrow/.style={
+    -{Stealth[length=8pt]}, line width=1.6pt, color=emptycolor, dashed
+  },
+  repairarrow/.style={
+    -{Stealth[length=8pt]}, line width=1.4pt, color=repaircolor
+  },
+  % ── Supply-chain node ──
+  scnode/.style={
+    circle, draw=black!70, fill=white, line width=1.2pt,
+    minimum size=0.9cm, font=\footnotesize\bfseries
+  },
+  % ── Route arrows ──
+  routefull/.style={
+    -{Stealth[length=7pt]}, line width=1.5pt, color=black
+  },
+  routeempty/.style={
+    -{Stealth[length=7pt]}, line width=1.5pt, color=blue!70
+  },
+}
+
+
+
+% ══════════════════════════════════════════════════════════════════════════════
+%  SUPPLY-CHAIN NODE COORDINATES  –  edit these to reposition all SC diagrams
+%  at once.  All three diagrams below read from these macros.
+% ══════════════════════════════════════════════════════════════════════════════
+\newcommand{\scCoordA}{2.0, 4.5}   % node A
+\newcommand{\scCoordB}{5.5, 5.5}   % node B
+\newcommand{\scCoordC}{6.5, 3.5}   % node C
+\newcommand{\scCoordD}{3.5, 2.5}   % node D
+\newcommand{\scCoordE}{8.2, 3.5}   % node E
+\newcommand{\scCoordF}{5.8, 1.2}   % node F
+
+% Helper macro: place all six SC nodes in the current tikzpicture
+\newcommand{\placeSCnodes}{%
+  \node[scnode] (A) at (\scCoordA) {A};
+  \node[scnode] (B) at (\scCoordB) {B};
+  \node[scnode] (C) at (\scCoordC) {C};
+  \node[scnode] (D) at (\scCoordD) {D};
+  \node[scnode] (E) at (\scCoordE) {E};
+  \node[scnode] (F) at (\scCoordF) {F};
+}
+
+% Global legend position (origin point for the top-left of the legend)
+\newcommand{\legendCoord}{7, 5.5}

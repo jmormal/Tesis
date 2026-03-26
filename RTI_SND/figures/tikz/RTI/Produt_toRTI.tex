@@ -1,0 +1,50 @@
+
+
+\begin{tikzpicture}[node distance=0.8cm and 0.5cm, font=\sffamily , perspective={
+    p = {(0,0,0)}}]
+
+% \begin{tikzpicture}[node distance=0.8cm and 0.5cm, font=\sffamily, tdplot_main_coords ]
+
+  % Styles for boxes, ellipses, and colored labels
+
+
+
+  % Gene nodes and numbers for container type 1
+  \node[] (sw) {\includegraphics[scale=0.1]{figures/003-steering-wheel.png}};
+
+  
+  \node[left= of sw] (w) {\includegraphics[scale=0.1]{figures/004-motor.png}};
+  \node[left= of w] (ce) {\includegraphics[scale=0.1]{figures/006-car-engine.png}};
+  \node[left= of ce] (cd) {\includegraphics[scale=0.1]{figures/005-car-door.png}};
+  \node[left= of cd] (s) {\includegraphics[scale=0.1]{figures/007-seat.png}};
+  \node[left= of s] (b) {\includegraphics[scale=0.1]{figures/002-car.png}};
+
+  \node[left= of b] (mt) {\includegraphics[scale=0.1]{figures/001-manual-transmission.png}};
+
+
+  \node[aux_gene_group, fit=(b) (mt)] (group1) {};
+  
+
+\node[below=1.5cm of group1] (box1) {\tikz     \drawblock{1}{1}{1}{\lbt}{\wbt}{\hbt}{red}{0}{0}{0};};
+    \path [line] (b) -- node[midway, right] {$150$} (box1);
+    \path [line] (mt) -- node[midway, left] {$10$} (box1);
+
+  \node[aux_gene_group, fit=(ce) (s)] (group2) {};
+  
+
+\node[below=1.5cm of group2] (box2) {\tikz     \drawblock{2}{3}{5}{3}{1.5}{3}{blue}{0}{0}{0};};
+    \path [line] (ce) -- node[midway, right] {$2$} (box2);
+    \path [line] (s) -- node[midway, left] {$3$} (box2);
+    \path [line] (cd) -- node[midway, left] {$4$} (box2);
+
+  \node[aux_gene_group, fit=(sw) (w)] (group3) {};
+  
+
+\node[below=1.5cm of group3] (box3) {\tikz     \drawblock{2}{3}{5}{2}{1}{2}{purple}{0}{0}{0};};
+    \path [line] (w) -- node[midway, right] {$5$} (box3);
+    \path [line] (sw) -- node[midway, left] {$20$} (box3);
+
+
+
+\end{tikzpicture}
+

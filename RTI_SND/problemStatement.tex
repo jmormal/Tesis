@@ -1,0 +1,118 @@
+% ══════════════════════════════════════════════════════════════════════════════
+%  SECTION – Problem Statement
+% ══════════════════════════════════════════════════════════════════════════════
+
+\section{Problem Statement}
+
+Managing returnable transport items (RTIs) in a manufacturing supply chain is,
+at its core, a closed-loop logistics problem. Raw materials, parts and finished goods flow in one direction, 
+from suppliers to customers, but the RTIs that carry them must flow
+back. The research question this paper addresses is the effectiveness of a collaborative return strategy of RTIs in a given  SC, in which empty RTIs are rerouted and consolidated along the network, analysing economic and environmental costs. To answer this, we propose an optimisation model that determines the optimal return routes for empty RTIs,
+the shipment frequency on each route, and the minimum RTI pool  to prevent production disruptions thereby defining the service network desing for RTIs.
+
+% ─────────────────────────────────────────────────────────────────
+We model the SC as a directed graph $G = (V, E)$, where each node $i \in V$
+represents a manufacturing site and each arc $(i,j) \in E$ represents a
+potential transport route, both for emtpy and full RTIs. Figure \ref{fig:SC} illustrates a SC network,
+where nodes are manufacturing sites and the black arcs represent the daily average flows of full
+RTIs driven by production demand. Each product family requires a specific RTI
+type, and the number of RTIs needed per shipment depends on how many raw materials, parts or finished goods fit
+in a single RTI, as shown in Figure~\ref{fig:Product-RTI}.
+
+
+\begin{figure}[h]
+    \centering
+        \resizebox{0.5\linewidth}{!}{\input{figures/tikz/SC/SC_flows.tex}}
+    \caption{ Full RTIs routes }
+    \label{fig:SC}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+        \resizebox{0.5\linewidth}{!}{\input{figures/tikz/RTI/Produt_toRTI.tex}}
+    \caption{ Product quantities per RTI }
+    \label{fig:Product-RTI}
+\end{figure}
+An RTI exists in one of two states: \textit{full}, when loaded with raw materials, parts and finished goods, or \textit{empty}, once its contents have been consumed at the
+destination site. Some RTIs can be folded, reducing their volume to decrease transport costs, as shown in Figure~\ref{fig:stacked-rti}.
+The simplest RTI return strategy is a one-to-one relationship, i.e., 
+for every shipment of full RTIs a supplier sends to a customer, the customer
+must return the empty RTIs along the same route, as depicted in
+Figure \ref{fig:1to1RTI}. This strategy is operationally straightforward,
+since each pair of nodes only coordinates with each other. However, it
+is rarely cost-optimal in large SCs, as it ignores consolidation
+opportunities along the SC and tends to result in both excessive empty RTIs transport costs and a larger RTI pool than strictly necessary, which implies higher RTI investment and inventory costs.
+
+\begin{figure}[ h ]
+  \centering
+  \includegraphics[width=0.4\linewidth]{figures/Magnum-Optimum_12108-removebg-preview.png}
+  \caption{Full and empty folded RTIs}
+  \label{fig:stacked-rti}
+\end{figure}
+
+
+\begin{figure}[h]
+    \centering
+        \resizebox{0.75\linewidth}{!}{\input{figures/tikz/RTI/1_to_1.tex}}
+    \caption{ One-to-one RTI return strategy }
+\label{fig:1to1RTI}
+\end{figure}
+
+When a central decision-maker, such as a dominant tier-1 manufacturer, an original equipment manufacturer (OEM) that owns the RTI pool, or a SC platform acting as manufacturing as a service (MaaS) {\color{red} Add reference}, has visibility over the entire network, a collaborative RTI return strategy becomes possible. Rather than using a one-to-one RTI return strategy, the model optimises empty RTI routes, reducing the total distance an empty RTI journeys and consolidating routes. This simultaneously diminishes RTI return costs and the overall RTI pool size. Figure~\ref{fig:sc1to1} shows the one-to-one baseline, while Figure \ref{fig:scshared} illustrates how an optimised collaborative strategy reduces RTI return transport costs on the same network. Determining the service network design is the primary objective of this research.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.49\linewidth}
+        \centering
+        \resizebox{\linewidth}{!}{\input{figures/tikz/SC/SC_1to1.tex}}
+        \caption{\textit{One-to-one} relationship}
+        \label{fig:sc1to1}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\linewidth}
+        \centering
+        \resizebox{\linewidth}{!}{\input{figures/tikz/SC/SC_optimized.tex}}
+        \caption{SND with minimised RTI return transport cost}
+        \label{fig:scshared}
+    \end{subfigure}
+    \caption{SND with minimized RTI return transport cost}
+\end{figure}
+
+On certain routes, full RTIs are accompanied by protective accessories,
+such as nets or lids, that secure parts during transit. These
+\textit{inlays} are themselves reusable and must be returned to the origin
+site after unloading. Here the FTL and less than load (LTL), also known as groupage, transport modes are addressed. 
+
+Given the daily average flows of full RTIs along the network, established previously
+by production plans within manufacturing sites, the problem to address is related to  the total number of RTIs needed in the whole SC, the empty routes of RTIs or even the type of full RTI  to transport items. The aim is to determine:
+\begin{enumerate}
+  \item  Routes for empty RTI and inlay return flows.
+    \item The shipment frequency per route, expressed as a
+          \textit{queue time} (Q-day), i.e.\ the number of days between
+          consecutive dispatches.
+    \item the transport mode on each route, i.e. Full-Truck-Load 
+    \item the total number of RTIs needed; and
+    \item whether additional RTIs must be purchased to meet network
+          requirements, accounting for safety stocks and a uniform maintenance
+          loss factor $\gamma$.
+\end{enumerate}
+The model pursues two objectives: minimising total daily cost, comprising
+transport costs for both full and empty flows and the inventory holding cost of
+the RTI pool, and minimising CO$_2$ emissions from transport as a secondary
+criterion in a bi-objective.
+
+% ─────────────────────────────────────────────────────────────────
+The model operates at a strategic-tactical level, using 
+daily averages of RTI flows rather than an explicit multi-period horizon. This
+is a deliberate modelling choice, and its validity merits justification.
+
+In practice, the daily avarage flow of full RTIs between nodes is governed by
+medium-to-long-term production contracts and procurement agreements, which
+change infrequently. The Q-days and transport modes are likewise set
+with a medium-to-long-term frequency rather than
+renegotiated day by day or week by week. By optimizing strategic-tactical decisions, instead of multi-horizon decions, the model is computationally
+tractable even for large industrial networks, where a fully operational
+day-by-day optimisation would be intractable. The strategic-tactical
+model thus provides a rigorous, scalable upper bound on the achievable savings
+from collaborative RTI management, which can subsequently serve as a benchmark
+and input for operational-level planning.

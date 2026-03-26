@@ -1,0 +1,237 @@
+\section{Mathematical Model}
+
+\begin{longtable}{|p{0.20\textwidth}|p{0.79\textwidth}|}
+\caption{Model nomenclature}
+\label{tab:nomenclature}\\
+\hline
+\multicolumn{2}{|l|}{\textbf{Indices and Sets}}\\ \hline
+$V$          & Set of nodes representing manufacturing plants, $i,j \in V$ \\
+$E$          & Set of directed edges representing potential transport lanes,
+               $E \subseteq V \times V$ \\
+$C$          & Set of RTI types, $c \in C$ \textit{(to be incorporated)} \\
+\hline
+\multicolumn{2}{|l|}{\textbf{Parameters}}\\ \hline
+$\mu_{ij}$        & Daily average number of full RTIs shipped on lane $(i,j)$ \\
+$ric_{ij}$        & Fraction of full shipments on lane $(i,j)$ that require a
+                    return inlay \\
+$c_{ij}$          & Transport cost per unit volume on lane $(i,j)$ \\
+$f_{ij}$          & Fixed cost per shipment on lane $(i,j)$ \\
+$v^{f}$, $v^{e}$  & Volume occupied by one full and one empty RTI,
+                    respectively \\
+$l_{ij}$          & Transit time on lane $(i,j)$, in days \\
+$\alpha^{f}$, $\alpha^{e}$ & Maintenance loss factor for full and empty RTIs,
+                    respectively \\
+$ssf^{i}_{ij}$, $ssf^{j}_{ij}$ & Safety stock of full RTIs held at the origin
+                    and destination node of lane $(i,j)$ \\
+$sse^{i}_{ij}$, $sse^{j}_{ij}$ & Safety stock of empty RTIs held at the origin
+                    and destination node of lane $(i,j)$ \\
+$s^{\text{RTI}}$  & Initial RTI pool available before optimisation \\
+$p^{\text{RTI}}$  & Unit purchase cost of one RTI \\
+$\omega_{ij}$     & Minimum shipment volume on lane $(i,j)$ \\
+$\delta_{ij}$     & Maximum shipment volume on lane $(i,j)$ \\
+$M$               & Sufficiently large constant (big-$M$) \\
+\hline
+\multicolumn{2}{|l|}{\textbf{Decision Variables}}\\ \hline
+\multicolumn{2}{|l|}{\textit{Binary variables}}\\ \hline
+$X_{ij}$     & 1 if lane $(i,j)$ is active for any RTI flow, 0 otherwise \\
+$XF_{ij}$    & 1 if lane $(i,j)$ carries full RTIs, 0 otherwise \\
+$XI_{ij}$    & 1 if lane $(i,j)$ carries return inlays, 0 otherwise \\
+$XE_{ij}$    & 1 if lane $(i,j)$ carries empty RTIs, 0 otherwise \\
+\hline
+\multicolumn{2}{|l|}{\textit{Daily flow variables}}\\ \hline
+$NF_{ij}$    & Daily average number of full RTIs sent from $i$ to $j$ \\
+$NI_{ij}$    & Daily average number of return inlays sent from $i$ to $j$ \\
+$NE_{ij}$    & Daily average number of empty RTIs sent from $i$ to $j$ \\
+\hline
+\multicolumn{2}{|l|}{\textit{Daily volume variables}}\\ \hline
+$VF_{ij}$    & Daily volume of full RTIs on lane $(i,j)$ \\
+$VI_{ij}$    & Daily volume of return inlays on lane $(i,j)$ \\
+$VE_{ij}$    & Daily volume of empty RTIs on lane $(i,j)$ \\
+\hline
+\multicolumn{2}{|l|}{\textit{Per-shipment variables}}\\ \hline
+$q_{ij}$     & Queue time on lane $(i,j)$: days between consecutive
+               dispatches (continuous, $q_{ij} \geq 1$) \\
+$VS_{ij}$    & Total volume per shipment on lane $(i,j)$
+               [$= (VF_{ij}+VI_{ij}+VE_{ij})\cdot q_{ij}$,\ \textit{bilinear}] \\
+$NSF_{ij}$, $NSI_{ij}$, $NSE_{ij}$ & Number of full, inlay and empty RTIs
+               per shipment on lane $(i,j)$
+               [$= NF_{ij}\cdot q_{ij}$, etc.,\ \textit{bilinear}] \\
+\hline
+\multicolumn{2}{|l|}{\textit{Total RTI pool variables}}\\ \hline
+$TNCF_{ij}$  & Total full RTIs allocated to lane $(i,j)$, accounting for
+               in-transit stock, safety stock, and maintenance losses \\
+$TNCI_{ij}$  & Total inlay RTIs allocated to lane $(i,j)$ \\
+$TNCE_{ij}$  & Total empty RTIs allocated to lane $(i,j)$, accounting for
+               in-transit stock, safety stock, and maintenance losses \\
+$P$          & Number of additional RTIs to purchase ($P \geq 0$) \\
+\hline
+\multicolumn{2}{|l|}{\textit{Cost variables}}\\ \hline
+$CF_{ij}$    & Daily transport cost of full RTIs on lane $(i,j)$ \\
+$CI_{ij}$    & Daily transport cost of return inlays on lane $(i,j)$ \\
+$CE_{ij}$    & Daily transport cost of empty RTIs on lane $(i,j)$ \\
+$TC_{ij}$    & Total daily transport cost on lane $(i,j)$ \\
+$TCS_{ij}$   & Transport cost per shipment on lane $(i,j)$
+               [$= VS_{ij}\cdot c_{ij} + X_{ij}\cdot f_{ij}$] \\
+\hline
+\end{longtable}
+
+% ─────────────────────────────────────────────────────────────────
+\paragraph{Objective function.}
+Minimise the total daily transport cost across all lanes plus the amortised
+purchase cost of any additional RTIs required:
+%
+\begin{align}
+  \min \quad \sum_{(i,j)\in E} TC_{ij} \;+\; p^{\text{RTI}} \cdot P
+  \label{eq:objective}
+\end{align}
+
+% ─────────────────────────────────────────────────────────────────
+\paragraph{Flow conservation.}
+The total number of RTIs entering each node equals the total number leaving it,
+ensuring a closed-loop network:
+%
+\begin{align}
+  \sum_{j \in V}\!\bigl(NE_{ij}+NF_{ij}+NI_{ij}\bigr)
+  &= \sum_{j \in V}\!\bigl(NE_{ji}+NF_{ji}+NI_{ji}\bigr)
+  && \forall\, i \in V
+  \label{eq:flow-conservation}
+\end{align}
+
+% ─────────────────────────────────────────────────────────────────
+\paragraph{Fixed full-RTI and inlay flows.}
+Full RTI flows are fixed by production plans. Return inlays are sent back on
+the reverse lane in proportion to the full shipments that required them:
+%
+\begin{align}
+  NF_{ij} &= \mu_{ij}
+    && \forall\,(i,j)\in E
+    \label{eq:full-fixed}\\
+  NI_{ji} &= ric_{ij}\cdot\mu_{ij}
+    && \forall\,(i,j)\in E
+    \label{eq:inlay-fixed}
+\end{align}
+
+% ─────────────────────────────────────────────────────────────────
+\paragraph{Lane activation.}
+A lane is active if and only if it carries at least one RTI flow type:
+%
+\begin{align}
+  X_{ij} &\geq XF_{ij}, \quad X_{ij} \geq XI_{ij}, \quad X_{ij} \geq XE_{ij}
+    && \forall\,(i,j)\in E
+    \label{eq:activation-lb}\\
+  X_{ij} &\leq XF_{ij} + XI_{ij} + XE_{ij}
+    && \forall\,(i,j)\in E
+    \label{eq:activation-ub}
+\end{align}
+
+% ─────────────────────────────────────────────────────────────────
+\paragraph{Flow--binary consistency.}
+Each binary is active if and only if a positive flow of the corresponding type
+is present:
+%
+\begin{align}
+  NF_{ij} &\leq M\cdot XF_{ij}, \quad XF_{ij} \leq NF_{ij}
+    && \forall\,(i,j)\in E
+    \label{eq:binary-full}\\
+  NI_{ij} &\leq M\cdot XI_{ij}, \quad XI_{ij} \leq NI_{ij}
+    && \forall\,(i,j)\in E
+    \label{eq:binary-inlay}\\
+  NE_{ij} &\leq M\cdot XE_{ij}, \quad XE_{ij} \leq NE_{ij}
+    && \forall\,(i,j)\in E
+    \label{eq:binary-empty}
+\end{align}
+
+% ─────────────────────────────────────────────────────────────────
+\paragraph{Daily volumes.}
+The daily volume on each lane is determined by the number of RTIs and their
+individual volumes:
+%
+\begin{align}
+  VF_{ij} &= NF_{ij}\cdot v^{f}
+    && \forall\,(i,j)\in E
+    \label{eq:vol-full}\\
+  VI_{ij} &= NI_{ij}\cdot v^{f}
+    && \forall\,(i,j)\in E
+    \label{eq:vol-inlay}\\
+  VE_{ij} &= NE_{ij}\cdot v^{e}
+    && \forall\,(i,j)\in E
+    \label{eq:vol-empty}
+\end{align}
+
+% ─────────────────────────────────────────────────────────────────
+\paragraph{Per-shipment quantities.}
+The number of RTIs and total volume accumulated between consecutive dispatches
+are proportional to the queue time. These constraints are \emph{bilinear} and
+will be linearised in Section~\ref{sec:linearisation}:
+%
+\begin{align}
+  NSF_{ij} &= NF_{ij}\cdot q_{ij}
+    && \forall\,(i,j)\in E
+    \label{eq:ship-full}\\
+  NSI_{ij} &= NI_{ij}\cdot q_{ij}
+    && \forall\,(i,j)\in E
+    \label{eq:ship-inlay}\\
+  NSE_{ij} &= NE_{ij}\cdot q_{ij}
+    && \forall\,(i,j)\in E
+    \label{eq:ship-empty}\\
+  VS_{ij}  &= \bigl(VF_{ij}+VI_{ij}+VE_{ij}\bigr)\cdot q_{ij}
+    && \forall\,(i,j)\in E
+    \label{eq:ship-vol}
+\end{align}
+
+% ─────────────────────────────────────────────────────────────────
+\paragraph{Shipment volume bounds.}
+Each shipment must respect a minimum load and a maximum vehicle capacity:
+%
+\begin{align}
+  \omega_{ij}\cdot X_{ij} &\leq VS_{ij} \leq \delta_{ij}\cdot X_{ij}
+    && \forall\,(i,j)\in E
+    \label{eq:vol-bounds}
+\end{align}
+
+% ─────────────────────────────────────────────────────────────────
+\paragraph{Total RTI pool requirements.}
+The total number of RTIs allocated to each lane accounts for in-transit stock,
+safety stock at both endpoints, and a maintenance loss factor:
+%
+\begin{align}
+  TNCF_{ij} &= (1+\alpha^{f})\bigl(NSF_{ij} + l_{ij}\cdot NF_{ij}
+               + XF_{ij}(ssf^{i}_{ij}+ssf^{j}_{ij})\bigr)
+    && \forall\,(i,j)\in E
+    \label{eq:pool-full}\\
+  TNCE_{ij} &= (1+\alpha^{e})\bigl(NSE_{ij} + l_{ij}\cdot NE_{ij}
+               + XE_{ij}(sse^{i}_{ij}+sse^{j}_{ij})\bigr)
+    && \forall\,(i,j)\in E
+    \label{eq:pool-empty}\\
+  TNCI_{ij} &= (1+\alpha^{f})\bigl(NSI_{ij} + l_{ij}\cdot NI_{ij}\bigr)
+    && \forall\,(i,j)\in E
+    \label{eq:pool-inlay}
+\end{align}
+
+\paragraph{RTI purchase.}
+Additional RTIs must be purchased to cover any shortfall between the network's
+total requirement and the existing pool. If the existing pool is sufficient,
+no purchase is needed and the surplus remains idle:
+%
+\begin{align}
+  \sum_{(i,j)\in E}\bigl(TNCF_{ij}+TNCE_{ij}+TNCI_{ij}\bigr)
+    &\leq s^{\text{RTI}} + P
+    && P \geq 0
+  \label{eq:purchase}
+\end{align}
+
+% ─────────────────────────────────────────────────────────────────
+\paragraph{Daily transport costs.}
+The per-shipment cost is the sum of a variable volumetric component and a fixed
+dispatch cost. Dividing by the queue time converts it to a daily cost. This
+constraint is \emph{bilinear} and will be linearised in
+Section~\ref{sec:linearisation}:
+%
+\begin{align}
+  TCS_{ij} &= VS_{ij}\cdot c_{ij} + X_{ij}\cdot f_{ij}
+    && \forall\,(i,j)\in E
+    \label{eq:cost-per-ship}\\
+  TC_{ij}\cdot q_{ij} &= TCS_{ij}
+    && \forall\,(i,j)\in E
+    \label{eq:cost-daily}
+\end{align}

@@ -1,0 +1,32 @@
+\begin{tikzpicture}[node distance=0.8cm and 0.5cm, font=\sffamily , isometric view, 3d view = {140}{30}]
+% coordinate system
+\coordinate (O) at (0, 0, 0);
+
+
+\draw[-latex] (O) -- +(1, 0,  0) node [right] {$x$};
+\draw[-latex] (O) -- +(0,  1, 0) node [left] {$y$};
+\draw[-latex] (O) -- +(0,  0, 1) node [above] {$z$};
+\draw[-latex] (O) -- +(1, 0,  0) node [right] {$x$};
+\draw[-latex] (O) -- +(0,  1, 0) node [left] {$y$};
+\draw[-latex] (O) -- +(0,  0, 1) node [above] {$z$};
+\drawblock{0}{0}{0}{1}{0.75}{0.5}{red}{5}{1}{5};
+\drawblock{6}{0}{0}{2}{1}{3}{green}{2}{0}{0};
+\drawblock{6}{1}{0}{2.5}{0.5}{3}{black}{1}{0}{0};
+\drawblock{12}{0}{0}{1}{1}{1.5}{lime}{0}{0}{1};
+
+\drawblock{0}{1.5}{0}{1}{.5}{0.25}{blue}{10}{0}{9};
+
+\drawblock{11}{1}{0}{2}{1}{1.25}{orange}{0}{0}{1};
+\drawblock{0}{1.5}{2.5}{3.6666}{.5}{0.5}{orange!40!gray}{2}{0}{0};
+\drawblock{11}{1}{2.5}{2}{1}{0.5}{violet}{0}{0}{0};
+
+
+
+
+% \draw[fill=gray, fill opacity=0.03] (0,0,0) -- ++(13 ,0,0) -- ++(0,2,0) -- ++(-13 ,0,0) -- cycle;
+% \draw[fill=gray, fill opacity=0.03] (0,0,0) -- ++(0,0,3 ) -- ++(13 ,0,0) -- ++(0,0,-3 ) -- cycle;
+% \draw[fill=gray, fill opacity=0.03] (0,0,0) -- ++(0,2,0) -- ++(0,0,3 ) -- ++(0,-2,0) -- cycle;
+\draw[fill=gray, fill opacity=0.03] (13,2,3) -- ++(-13 ,0,0) -- ++(0,-2,0) -- ++(13 ,0,0) -- cycle;
+\draw[fill=gray, fill opacity=0.03] (13,2,3) -- ++(0,0,-3 ) -- ++(-13 ,0,0) -- ++(0,0,3 ) -- cycle;
+\draw[fill=gray, fill opacity=0.03] (13,2,3) -- ++(0,-2,0) -- ++(0,0,-3 ) -- ++(0,2,0) -- cycle;
+\end{tikzpicture}

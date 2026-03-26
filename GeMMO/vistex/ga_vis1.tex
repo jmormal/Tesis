@@ -1,0 +1,67 @@
+
+% Provide a way to declare and renew a command in one command
+\newcommand{\neworrenewcommand}[1]{\providecommand{#1}{}\renewcommand{#1}}
+
+\newcommand{\drawblock}[9]{
+    \neworrenewcommand{\ffoo}[1]{
+           
+        \foreach \i in {0,...,#8} {
+            \foreach \j in {0,...,#9} {
+                \foreach \k in {0,...,##1} {
+                    % Only draw the visible faces
+                    % Front face
+                    \ifnum \i=#8
+                        \draw[#7, fill=#7!50] (#1+\i*#4+#4,#2+\j*#5,#3+\k*#6) -- ++(0,#5,0) -- ++(0,0,#6) -- ++(0,-#5,0) -- cycle;
+                    \fi
+                    % Right face
+                    \ifnum \j=#9
+                        \draw[#7, fill=#7!30] (#1+\i*#4,#2+#5+\j*#5,#3+\k*#6) -- ++(#4,0,0) -- ++(0,0,#6) -- ++(-#4,0,0) -- cycle;
+                    \fi
+                    % Top face
+                    \ifnum \k=##1
+                        \draw[#7, fill=#7!20] (#1+\i*#4,#2+\j*#5,#3+#6+\k*#6) -- ++(#4,0,0) -- ++(0,#5,0) -- ++(-#4,0,0) -- cycle;
+                    \fi
+                    % Draw a point at each vertex
+                    % \fill (#1+\i*#4,#2+\j*#5,#3+\k*#6) circle (1pt);
+                }
+            }
+        }
+    
+    }
+    \ffoo
+}
+
+
+
+\begin{tikzpicture}
+\node[] (fig1) {  \resizebox{0.2\columnwidth}{!}{%
+    \input{loaded_truck_1}
+    }}; 
+  \node[box, above right=0.75cm of fig1] (o1) {Loading \\  Configurations};
+  \node[box, right=1cm of o1] (product) {Product \\ Selection};
+  \node[aux_gene_group, fit=(o1) (product)] (group1) {};
+  \node[label_node=orange, above= of group1,  minimum height=1.05cm] (Ft) {$F_t$};
+
+  \node[label_node=orange, below= of group1, minimum height=1.05cm] (Ft1) {$F_{t+1}$};
+      \tikzstyle{tline} = [draw, {Latex[length=1.5mm]}-{Latex[length=1.5mm]}]
+      \tikzstyle{line} = [draw, -Latex]
+
+  \path [tline] (o1) -- (product) ;
+  \path [line] (o1) -- (Ft1) ;
+  \path [line] (product) -- (Ft1) ;
+  \path [line] (Ft) -- (product) ;
+  \path [line] (Ft) -- (o1) ;
+  
+  \node [above left=0.75cm of Ft] (ul) {};
+  \node [below left=0.75cm of Ft1] (dl) {};
+  \node [above right=0.75cm of Ft] (ur) {};
+  \node [below right=0.75cm of Ft1] (dr) {};
+    \path [line] (ul) -- (Ft) ;
+  \path [line] (ur) -- (Ft) ;
+      \path [line] (Ft1) -- (dl) ;
+  \path [line] (Ft1) -- (dr) ;
+
+  \node[below right=0.75cm of product] (fig1) {  \resizebox{0.2\columnwidth}{!}{%
+    \input{inventory_vis_}
+    }}; 
+\end{tikzpicture}

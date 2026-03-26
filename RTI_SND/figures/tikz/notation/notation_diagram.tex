@@ -1,0 +1,115 @@
+\begin{tikzpicture}[
+  every node/.style = {
+    draw, rounded corners=3pt, inner sep=5pt,
+    align=center, font=\small
+  },
+  root/.style   = {fill=blue!12, thick},
+  cont1/.style  = {fill=orange!12},
+  cont2/.style  = {fill=green!12},
+  binOR/.style  = {fill=red!8,    thick, dashed},
+  binHAT/.style = {fill=purple!8, thick, dashed},
+  arr/.style    = {->, >=stealth, thick},
+  barr/.style   = {->, >=stealth, thick, dashed, red!55!black},
+  lbl/.style    = {draw=none, fill=none, font=\footnotesize\itshape,
+                   inner sep=2pt},
+  blbl/.style   = {draw=none, fill=none, font=\footnotesize\bfseries,
+                   inner sep=2pt, text=red!55!black}
+]
+
+%% ── CONTINUOUS (left half) ──────────────────────────────────────
+
+\node[root]  (root)  at (0,0)
+  {$\phi_{cijm}$\\[2pt]{\footnotesize root form $(i,j,c,m)$}};
+
+\node[cont1] (Fcij)  at (-3.6, 3.4)
+  {$\phi_{cij}=\displaystyle\sum_{m}\phi_{cijm}$\\[2pt]
+   {\footnotesize $m$ suppressed}};
+
+\node[cont1] (Fijm)  at ( 3.6, 3.4)
+  {$\phi_{ijm}=\displaystyle\sum_{c}\phi_{cijm}$\\[2pt]
+   {\footnotesize $c$ suppressed}};
+
+\node[cont2] (Fij)   at (0, 6.8)
+  {$\phi_{ij}=\displaystyle\sum_{c}\sum_{m}\phi_{cijm}$\\[2pt]
+   {\footnotesize $c$ and $m$ suppressed}};
+
+\draw[arr] (root) -- (Fcij)
+  node[lbl,midway,left=3pt]{$\textstyle\sum_{m\in\mathcal{M}}$};
+\draw[arr] (root) -- (Fijm)
+  node[lbl,midway,right=3pt]{$\textstyle\sum_{c\in C}$};
+\draw[arr] (Fcij) -- (Fij)
+  node[lbl,midway,left=3pt]{$\textstyle\sum_{c\in C}$};
+\draw[arr] (Fijm) -- (Fij)
+  node[lbl,midway,right=3pt]{$\textstyle\sum_{m\in\mathcal{M}}$};
+
+%% ── DOT NOTATION (below root) ───────────────────────────────────
+
+\node[cont1, dashed] (dotj) at (-3.6,-3.4)
+  {$\phi_{c\cdot jm}=\displaystyle\sum_{i\in V}\phi_{cijm}$\\[2pt]
+   {\footnotesize origin $i$ suppressed (dot)}};
+
+\node[cont1, dashed] (doti) at ( 3.6,-3.4)
+  {$\phi_{ci\cdot m}=\displaystyle\sum_{j\in V}\phi_{cijm}$\\[2pt]
+   {\footnotesize destination $j$ suppressed (dot)}};
+
+\draw[arr] (root) -- (dotj)
+  node[lbl,midway,left=3pt]{$\textstyle\sum_{i\in V}$};
+\draw[arr] (root) -- (doti)
+  node[lbl,midway,right=3pt]{$\textstyle\sum_{j\in V}$};
+
+%% ── BINARY (right half) ─────────────────────────────────────────
+
+\node[root] (Xroot) at (11, 0)
+  {$X_{cijm}$\\[2pt]{\footnotesize root binary $(i,j,c,m)$}};
+
+\node[binOR] (XORc) at (8, 3.4)
+  {$\overline{X}_{cij}$\;(new variable)\\[2pt]
+   {\footnotesize $m$ suppressed}\\[1pt]
+   {\footnotesize \eqref{eq:or-m-lb}: $X_{cijm}\leq\overline{X}_{cij}$}\\
+   {\footnotesize \eqref{eq:or-m-ub}: $\overline{X}_{cij}\leq\sum_m X_{cijm}$}};
+
+\node[binOR] (XORm) at (14, 3.4)
+  {$\overline{X}_{ijm}$\;(new variable)\\[2pt]
+   {\footnotesize $c$ suppressed}\\[1pt]
+   {\footnotesize \eqref{eq:or-c-lb}: $X_{cijm}\leq\overline{X}_{ijm}$}\\
+   {\footnotesize \eqref{eq:or-c-ub}: $\overline{X}_{ijm}\leq\sum_c X_{cijm}$}};
+
+\node[binHAT] (XHAT) at (11,-3.4)
+  {$\hat{X}_{cij}$\;(new variable)\\[2pt]
+   {\footnotesize $m$ suppressed}\\[1pt]
+   {\footnotesize \eqref{eq:exactly-one}: $\sum_{c\in C_{ij}}\hat{X}_{cij}=1$}};
+
+\draw[barr] (Xroot) -- (XORc)
+  node[blbl,midway,left=3pt]{OR over $m$};
+\draw[barr] (Xroot) -- (XORm)
+  node[blbl,midway,right=3pt]{OR over $c$};
+\draw[barr] (Xroot) -- (XHAT)
+  node[blbl,midway,right=3pt]{exactly-one over $c$};
+
+%% ── DIVIDING RULE ───────────────────────────────────────────────
+
+\draw[thick, gray!40, dashed] (6.2,-5) -- (6.2,8);
+
+\node[draw=none,fill=none,font=\footnotesize\bfseries,gray!60]
+  at (2.5, 7.8) {Continuous variables};
+\node[draw=none,fill=none,font=\footnotesize\bfseries,gray!60]
+  at (10.5, 7.8) {Binary variables};
+
+%% ── LEGEND ──────────────────────────────────────────────────────
+\node[draw=gray!40, fill=white, rounded corners=3pt,
+      anchor=south west, align=left, font=\footnotesize,
+      inner sep=6pt] at (-4.5,-6.4)
+  {\tikz\node[root,  minimum width=0.85em,minimum height=0.85em]{};
+     ~Root form\quad
+   \tikz\node[cont1, minimum width=0.85em,minimum height=0.85em]{};
+     ~Summation aggregate\quad
+   \tikz\node[cont2, minimum width=0.85em,minimum height=0.85em]{};
+     ~Double summation aggregate\\[4pt]
+   \tikz\node[binOR, minimum width=0.85em,minimum height=0.85em]{};
+     ~New OR-aggregated binary (solver variable + linking constraints)\quad
+   \tikz\node[binHAT,minimum width=0.85em,minimum height=0.85em]{};
+     ~New exactly-one binary (solver variable + equality constraint)\\[4pt]
+   Solid border / solid arrow: purely notational (no new variable).\quad
+   Dashed border / dashed arrow: new solver variable with enforcing constraints.};
+
+\end{tikzpicture}

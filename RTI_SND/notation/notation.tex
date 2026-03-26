@@ -1,0 +1,160 @@
+\begin{convention}[Index suppression and aggregation from the root variable]
+\label{conv:notation}
+
+Every variable in the model is defined with a given root indices, for example $(i,j,c,m)$; we call this the \textbf{root form}.
+Writing a variable with fewer indices always denotes a
+\emph{derived form}: one or more indices have been suppressed and
+the root values aggregated according to the rules below.
+
+
+Figure~\ref{fig:index-lattice} illustrates the full derivation
+lattice.
+
+% ------------------------------------------------------------------
+\medskip
+\noindent\textbf{Rule~1 (Sum aggregation).
+  Applies to all variable types: continuous, integer, and binary.}
+
+Dropping an index from any variable $\phi$ stands for the sum of
+the root form over every value of that index:
+%
+\begin{align*}
+  \phi_{cij}
+    &\;\coloneqq\; \sum_{m\in\mathcal{M}} \phi_{cijm},
+  &
+  \phi_{ijm}
+    &\;\coloneqq\; \sum_{c\in C}           \phi_{cijm},
+  &
+  \phi
+    &\;\coloneqq\;
+      \sum_{c\in C}\sum_{i\in V}\sum_{j\in V}\sum_{m\in\mathcal{M}} \phi_{cijm}.
+\end{align*}
+%
+For continuous and integer variables this is the natural
+interpretation.
+For binary variables the result is an \emph{integer count} of how
+many root-level binaries in the group equal~1; it is not itself
+binary.
+For example, $X_{cij} \coloneqq \sum_{m\in\mathcal{M}}
+X_{cijm}$ counts how many modes are active for type $c$ on
+lane $(i,j)$ and takes values in $\{0,1,\dots,|\mathcal{M}|\}$.
+No new variable is introduced by Rule~1, and no constraint is
+required.
+
+% ------------------------------------------------------------------
+\medskip
+\noindent\textbf{Rule~2 (Dot notation for the node-pair $(i,j)$).}
+
+The root form carries two active indices from the same set $V$.
+Suppressing one while keeping the other would be ambiguous, so a
+dot~$(\,\cdot\,)$ marks the suppressed position explicitly:
+%
+\begin{align*}
+  \phi_{c\cdot j m}
+    &\;\coloneqq\; \sum_{i\in V} \phi_{cijm},
+  &
+  \phi_{ci \cdot m}
+    &\;\coloneqq\; \sum_{j\in V} \phi_{cijm}.
+\end{align*}
+%
+The dot is only ever needed for the origin/destination pair, as no
+other pair of active indices belongs to the same set.
+Rule~1 applies as normal: the result is a sum, and for binary
+variables it is an integer count.
+
+% ------------------------------------------------------------------
+\medskip
+\noindent\textbf{Rule~3 (OR-aggregated binaries).
+  A new binary variable derived from the sum aggregate.}
+
+When a binary indicator is needed at a coarser granularity---one
+that signals whether \emph{at least one} root-level binary in the
+group is active---a new binary decision variable is introduced,
+denoted with an overline ($\overline{X}$).
+This variable is not a notational shorthand: it must be declared
+in the solver and its relationship to the root-level binaries
+enforced by an explicit big-$M$ pair.
+Crucially, the pair is written directly in terms of the
+sum aggregate defined by Rule~1, so the sum-shorthand appears
+in the constraints themselves.
+
+\smallskip
+\noindent\emph{Suppressing the mode index $m$} yields the new
+binary $\overline{X}_{cij}$, linked to the sum aggregate
+$X_{cij} = \sum_{m\in\mathcal{M}} X_{cijm}$ by:
+%
+\begin{align}
+  \overline{X}_{cij}
+    &\leq X_{cij}
+  && \forall\,(i,j)\in E,\ c\in C
+  \label{eq:or-m-lb}\\
+  X_{cij}
+    &\leq M\cdot\overline{X}_{cij}
+  && \forall\,(i,j)\in E,\ c\in C
+  \label{eq:or-m-ub}
+\end{align}
+%
+Constraint~\eqref{eq:or-m-lb} forces $\overline{X}_{cij}$
+to~0 when the count $X_{cij}$ is~0 (no mode active).
+Constraint~\eqref{eq:or-m-ub} forces $\overline{X}_{cij}$
+to~1 when the count is positive (at least one mode active).
+Together they enforce
+$\overline{X}_{cij} = 1 \iff X_{cij} \geq 1$.
+
+% ------------------------------------------------------------------
+\medskip
+\noindent\textbf{Rule~4 (Exactly-one variant).
+  An OR aggregate with an additional global restriction.}
+
+In some cases the OR aggregates over $m$ for a fixed lane
+$(i,j)$ must satisfy the stronger condition that \emph{exactly
+one} type $c \in C_{ij}$ is active across the whole lane.
+Rather than introducing a further variable, we reuse the OR
+aggregate $\overline{X}_{cij}$ from Rule~3 and mark it with a
+hat ($\hat{X}$) to signal that the following equality is imposed
+on top of constraints~\eqref{eq:or-m-lb}--\eqref{eq:or-m-ub}:
+%
+\begin{align}
+  X_{cij}
+    &= 1
+  && \forall\,(i,j)\in E
+  \label{eq:exactly-one}
+\end{align}
+%
+That is, $\hat{X}_{cij}$ and $\overline{X}_{cij}$ are the
+\emph{same variable}---the OR aggregate of $X_{cijm}$ over
+$m$, constructed identically via Rules~1 and~3.
+The hat is a diacritic warning the reader that
+constraint~\eqref{eq:exactly-one} further restricts the feasible
+pattern of values across $c$: whereas plain OR aggregation allows
+any subset of types to be simultaneously active, the hat enforces
+that the sum of those OR aggregates across all admissible types
+equals exactly one.
+
+% ------------------------------------------------------------------
+%  TIKZ LATTICE
+% ------------------------------------------------------------------
+\begin{figure}[H]
+\centering
+\resizebox{0.95\linewidth}{!}{%
+  \input{figures/tikz/notation/notation_diagram.tex}}
+\caption{%
+  Derivation lattice for a generic variable $\phi$ (left panel,
+  continuous or integer) and its binary counterpart $X$ (right
+  panel), separated by the dashed vertical rule.
+  On the left, every arrow represents a sum aggregation
+  (Rule~1--2): purely notational, no new variable introduced.
+  On the right, solid arrows represent the same sum aggregation
+  applied to binary variables, producing an integer count.
+  Dashed arrows introduce a genuinely new solver variable (dashed
+  border): the OR aggregate $\overline{X}$ (Rule~3), defined as a
+  binary proxy for whether the count is positive, enforced by the
+  big-$M$ pair shown in each node.
+  The hat variant $\hat{X}$ (Rule~4) is the same variable as
+  $\overline{X}_{cij}$ with the additional
+  constraint~\eqref{eq:exactly-one} in force.%
+}
+\label{fig:index-lattice}
+\end{figure}
+
+\end{convention}

@@ -1,0 +1,42 @@
+\begin{tikzpicture}
+
+  \placeSCnodes
+
+  %% ── Full RTI routes (black) ───────────────────────────────────────────────
+  \draw[routefull] (A) -- (B)
+    node[midway, above=2pt, font=\scriptsize\bfseries]{10};
+  \draw[routefull] (B) -- (C)
+    node[midway, right=3pt, font=\scriptsize\bfseries]{15};
+  \draw[routefull] (D) -- (A)
+    node[midway, left=3pt,  font=\scriptsize\bfseries]{10};
+  \draw[routefull] (E) -- (F)
+    node[midway, right=3pt, font=\scriptsize\bfseries]{10};
+
+  %% ── Optimised empty-RTI return routes (blue) ──────────────────────────────
+  % C sends 5 empties back up to B
+  \draw[routeempty, transform canvas={xshift=-4pt}]
+    (C) -- (B) node[midway, left=1pt, font=\scriptsize\bfseries, color=blue!70]{5};
+
+  % C sends 10 empties sideways to E (shared consolidation)
+  \draw[routeempty] (C) -- (E)
+    node[midway, above=2pt, font=\scriptsize\bfseries, color=blue!70]{10};
+
+  % D sends 10 empties up to A  (consolidated leg)
+  \draw[routeempty, transform canvas={xshift=1pt}]
+    (F) -- (D) node[midway, right, font=\scriptsize\bfseries, color=blue!70]{10};
+
+%% ── Legend ────────────────────────────────────────────────────────────────
+  \begin{scope}[shift={(\legendCoord)}]
+    \node[scnode] (ln) at (0, 0) {};
+    \node[right=0.1cm of ln, font=\scriptsize, text width=2.4cm] {SC nodes};
+    
+    \draw[routefull]  (-0.2, -0.6) -- (0.8, -0.6)
+      node[right, font=\scriptsize] {Routes of full RTIs};
+      
+    \draw[routeempty] (-0.2, -1.2) -- (0.8, -1.2)
+      node[right, font=\scriptsize] {Routes of empty RTIs};
+  \end{scope}
+\end{tikzpicture}
+
+
+

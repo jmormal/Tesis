@@ -1,0 +1,66 @@
+\begin{tikzpicture}[
+    % Define styles for consistent styling
+    factory node/.style={
+        circle,
+        draw,
+        minimum size=4.5cm,
+        align=center,
+        thick,
+        fill=white
+    },
+    arrow/.style={
+        -{Stealth[length=3mm, width=2mm]},
+        thick
+    },
+    label text/.style={
+        font=\sffamily,
+        fill=white, % Adds a white background behind the text to break the line
+        inner sep=4pt
+    },
+    plan text/.style={
+        align=center, 
+        font=\sffamily\small
+    }
+]
+
+% -----------------------------------------
+% 1. Main Circular Nodes (Plant & Supplier)
+% -----------------------------------------
+\node[factory node] (plant) at (0,0) {
+    \includesvg[width=1.5cm]{figures/factory.svg}\\[0.3cm]
+    Plant
+};
+
+\node[factory node] (supplier) at (14,0) {
+    \includesvg[width=1.5cm]{figures/factory.svg}\\[0.3cm]
+    Supplier
+};
+
+% -----------------------------------------
+% 2. Curved Routing Arrows (Top & Bottom)
+% -----------------------------------------
+% Supplier -> Plant (Top)
+\draw[arrow] (supplier) to[bend right=20] 
+    node[label text] {Transport of full RTIs} (plant);
+
+% Plant -> Supplier (Bottom)
+\draw[arrow] (plant) to[bend right=20] 
+    node[label text] {Transport of empty RTIs} (supplier);
+
+% -----------------------------------------
+% 3. Production Plan (Left side)
+% -----------------------------------------
+\node[plan text] (plan_left) at (-4, 0) {Production unloads \\ full RTIS};
+% Arrows pointing to Plant
+\draw[arrow] (plan_left.east) -- ($(plant.west)+(0, 0.6)$);
+\draw[arrow] (plan_left.east) -- ($(plant.west)-(0, 0.6)$);
+
+% -----------------------------------------
+% 4. Production Plan (Right side)
+% -----------------------------------------
+\node[plan text] (plan_right) at (18, 0) {Production loads \\ empty RTIs};
+% Arrows pointing to Supplier
+\draw[arrow] (plan_right.west) -- ($(supplier.east)+(0, 0.6)$);
+\draw[arrow] (plan_right.west) -- ($(supplier.east)-(0, 0.6)$);
+
+\end{tikzpicture}

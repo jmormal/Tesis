@@ -1,0 +1,21 @@
+\begin{tikzpicture}
+
+  %% ── Supply-chain nodes ────────────────────────────────────────────────────
+  \placeSCnodes
+
+  %% ── Full RTI routes ───────────────────────────────────────────────────────
+  \draw[routefull] (A) -- (B) node[midway, above, font=\scriptsize\bfseries]{10};
+  \draw[routefull] (B) -- (C) node[midway, right, font=\scriptsize\bfseries]{15};
+  \draw[routefull] (D) -- (A) node[midway, left,  font=\scriptsize\bfseries]{10};
+  \draw[routefull] (E) -- (F) node[midway, right, font=\scriptsize\bfseries]{10};
+
+%% ── Legend ────────────────────────────────────────────────────────────────
+  \begin{scope}[shift={(\legendCoord)}]
+    \node[scnode] (ln) at (0, 0) {};
+    \node[right=0.1cm of ln, font=\scriptsize, text width=2.4cm] {SC nodes};
+    
+    \draw[routefull]  (-0.2, -0.6) -- (0.8, -0.6)
+      node[right, font=\scriptsize] {Routes of full RTIs};
+      
+  \end{scope}
+\end{tikzpicture}
