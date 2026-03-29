@@ -1,115 +1,62 @@
+% --- ADJUSTABLE PARAMETERS ---
+\def\hsep{4.0}         % Horizontal separation within the left tree (widened slightly for the longer text)
+\def\vsep{1.4}         % Vertical separation between nodes
+\def\logicXshift{7.5} % Gap between "root form" and "root binary"
+% -----------------------------
+
 \begin{tikzpicture}[
   every node/.style = {
     draw, rounded corners=3pt, inner sep=5pt,
-    align=center, font=\small
+    align=center, font=\small, thick
   },
-  root/.style   = {fill=blue!12, thick},
-  cont1/.style  = {fill=orange!12},
-  cont2/.style  = {fill=green!12},
-  binOR/.style  = {fill=red!8,    thick, dashed},
-  binHAT/.style = {fill=purple!8, thick, dashed},
-  arr/.style    = {->, >=stealth, thick},
-  barr/.style   = {->, >=stealth, thick, dashed, red!55!black},
-  lbl/.style    = {draw=none, fill=none, font=\footnotesize\itshape,
-                   inner sep=2pt},
-  blbl/.style   = {draw=none, fill=none, font=\footnotesize\bfseries,
-                   inner sep=2pt, text=red!55!black}
+  % Exactly 3 box types:
+  rootBox/.style   = {fill=blue!10, draw=blue!60!black},
+  sumBox/.style    = {fill=orange!10, draw=orange!60!black},
+  binBox/.style    = {fill=red!5, draw=red!80!black, dashed},
+  % Arrow styles:
+  arr/.style       = {->, >=stealth, thick},
+  barr/.style      = {->, >=stealth, thick, dashed, red!80!black},
+  lbl/.style       = {draw=none, fill=none, font=\footnotesize\itshape, inner sep=2pt},
+  blbl/.style      = {draw=none, fill=none, font=\footnotesize\bfseries, inner sep=2pt, text=red!80!black},
+  graylbl/.style   = {draw=none, fill=none, font=\small\bfseries, gray!50}
 ]
 
-%% ── CONTINUOUS (left half) ──────────────────────────────────────
+%% --- SUM AGGREGATION SECTION (Left) ---
+\node[rootBox] (root) at (0,0) {$\phi_{cijm}$};
 
-\node[root]  (root)  at (0,0)
-  {$\phi_{cijm}$\\[2pt]{\footnotesize root form $(i,j,c,m)$}};
+\node[sumBox] (Fcij)  at (-\hsep/2, \vsep)   {$\phi_{cij} \coloneqq \sum_{m \in \mathcal{M}} \phi_{cijm}$};
+\node[sumBox] (Fijm)  at (\hsep/2, \vsep)    {$\phi_{ijm} \coloneqq \sum_{c \in C} \phi_{cijm}$};
+\node[sumBox] (Fij)   at (0, 2*\vsep)        {$\phi_{ij} \coloneqq \sum_{c \in C} \sum_{m \in \mathcal{M}} \phi_{cijm}$};
 
-\node[cont1] (Fcij)  at (-3.6, 3.4)
-  {$\phi_{cij}=\displaystyle\sum_{m}\phi_{cijm}$\\[2pt]
-   {\footnotesize $m$ suppressed}};
+% Arrows pointing exactly to center anchors
+\draw[arr] (root.north) -- (Fcij.south);
+\draw[arr] (root.north) -- (Fijm.south);
+\draw[arr] (Fcij.north) -- (Fij.south);
+\draw[arr] (Fijm.north) -- (Fij.south);
 
-\node[cont1] (Fijm)  at ( 3.6, 3.4)
-  {$\phi_{ijm}=\displaystyle\sum_{c}\phi_{cijm}$\\[2pt]
-   {\footnotesize $c$ suppressed}};
+% Dot notation
+\node[sumBox] (dotj) at (-\hsep/2, -\vsep) {$\phi_{c \cdot j m} \coloneqq \sum_{i \in V} \phi_{cijm}$};
+\node[sumBox] (doti) at (\hsep/2, -\vsep)  {$\phi_{ci \cdot m} \coloneqq \sum_{j \in V} \phi_{cijm}$};
+\draw[arr] (root.south) -- (dotj.north);
+\draw[arr] (root.south) -- (doti.north);
 
-\node[cont2] (Fij)   at (0, 6.8)
-  {$\phi_{ij}=\displaystyle\sum_{c}\sum_{m}\phi_{cijm}$\\[2pt]
-   {\footnotesize $c$ and $m$ suppressed}};
 
-\draw[arr] (root) -- (Fcij)
-  node[lbl,midway,left=3pt]{$\textstyle\sum_{m\in\mathcal{M}}$};
-\draw[arr] (root) -- (Fijm)
-  node[lbl,midway,right=3pt]{$\textstyle\sum_{c\in C}$};
-\draw[arr] (Fcij) -- (Fij)
-  node[lbl,midway,left=3pt]{$\textstyle\sum_{c\in C}$};
-\draw[arr] (Fijm) -- (Fij)
-  node[lbl,midway,right=3pt]{$\textstyle\sum_{m\in\mathcal{M}}$};
+%% --- BINARY LOGIC AGGREGATION SECTION (Right) ---
+\begin{scope}[xshift=\logicXshift cm]
+\node[rootBox] (Xroot) at (0, 0) {$X_{cijm}$};
 
-%% ── DOT NOTATION (below root) ───────────────────────────────────
+\node[binBox] (XOR)  at (0, \vsep*1.36)   {$\overline{X}_{cij}$ (OR Variable) \\ \scriptsize $\overline{X}_{cij} \le X_{cij}$ \\ \scriptsize $X_{cij} \le |\mathcal{M}| \overline{X}_{cij}$};
+\node[binBox] (XHAT) at (0, -\vsep*1.36)  {$\hat{X}_{cij}$ (At-most-one) \\ \scriptsize $\sum_{c \in C} X_{cij} \le \hat{X}_{cij}$};
 
-\node[cont1, dashed] (dotj) at (-3.6,-3.4)
-  {$\phi_{c\cdot jm}=\displaystyle\sum_{i\in V}\phi_{cijm}$\\[2pt]
-   {\footnotesize origin $i$ suppressed (dot)}};
+\draw[barr] (Xroot.north) -- (XOR.south)  node[blbl, midway, right] {Rule 3};
+\draw[barr] (Xroot.south) -- (XHAT.north) node[blbl, midway, right] {Rule 4};
+\end{scope}
 
-\node[cont1, dashed] (doti) at ( 3.6,-3.4)
-  {$\phi_{ci\cdot m}=\displaystyle\sum_{j\in V}\phi_{cijm}$\\[2pt]
-   {\footnotesize destination $j$ suppressed (dot)}};
 
-\draw[arr] (root) -- (dotj)
-  node[lbl,midway,left=3pt]{$\textstyle\sum_{i\in V}$};
-\draw[arr] (root) -- (doti)
-  node[lbl,midway,right=3pt]{$\textstyle\sum_{j\in V}$};
+%% --- DIVIDER AND LABELS ---
+\draw[thick, gray!30, dashed] (\logicXshift/2, -1.5*\vsep) -- (\logicXshift/2, 2.8*\vsep);
 
-%% ── BINARY (right half) ─────────────────────────────────────────
-
-\node[root] (Xroot) at (11, 0)
-  {$X_{cijm}$\\[2pt]{\footnotesize root binary $(i,j,c,m)$}};
-
-\node[binOR] (XORc) at (8, 3.4)
-  {$\overline{X}_{cij}$\;(new variable)\\[2pt]
-   {\footnotesize $m$ suppressed}\\[1pt]
-   {\footnotesize \eqref{eq:or-m-lb}: $X_{cijm}\leq\overline{X}_{cij}$}\\
-   {\footnotesize \eqref{eq:or-m-ub}: $\overline{X}_{cij}\leq\sum_m X_{cijm}$}};
-
-\node[binOR] (XORm) at (14, 3.4)
-  {$\overline{X}_{ijm}$\;(new variable)\\[2pt]
-   {\footnotesize $c$ suppressed}\\[1pt]
-   {\footnotesize \eqref{eq:or-c-lb}: $X_{cijm}\leq\overline{X}_{ijm}$}\\
-   {\footnotesize \eqref{eq:or-c-ub}: $\overline{X}_{ijm}\leq\sum_c X_{cijm}$}};
-
-\node[binHAT] (XHAT) at (11,-3.4)
-  {$\hat{X}_{cij}$\;(new variable)\\[2pt]
-   {\footnotesize $m$ suppressed}\\[1pt]
-   {\footnotesize \eqref{eq:exactly-one}: $\sum_{c\in C_{ij}}\hat{X}_{cij}=1$}};
-
-\draw[barr] (Xroot) -- (XORc)
-  node[blbl,midway,left=3pt]{OR over $m$};
-\draw[barr] (Xroot) -- (XORm)
-  node[blbl,midway,right=3pt]{OR over $c$};
-\draw[barr] (Xroot) -- (XHAT)
-  node[blbl,midway,right=3pt]{exactly-one over $c$};
-
-%% ── DIVIDING RULE ───────────────────────────────────────────────
-
-\draw[thick, gray!40, dashed] (6.2,-5) -- (6.2,8);
-
-\node[draw=none,fill=none,font=\footnotesize\bfseries,gray!60]
-  at (2.5, 7.8) {Continuous variables};
-\node[draw=none,fill=none,font=\footnotesize\bfseries,gray!60]
-  at (10.5, 7.8) {Binary variables};
-
-%% ── LEGEND ──────────────────────────────────────────────────────
-\node[draw=gray!40, fill=white, rounded corners=3pt,
-      anchor=south west, align=left, font=\footnotesize,
-      inner sep=6pt] at (-4.5,-6.4)
-  {\tikz\node[root,  minimum width=0.85em,minimum height=0.85em]{};
-     ~Root form\quad
-   \tikz\node[cont1, minimum width=0.85em,minimum height=0.85em]{};
-     ~Summation aggregate\quad
-   \tikz\node[cont2, minimum width=0.85em,minimum height=0.85em]{};
-     ~Double summation aggregate\\[4pt]
-   \tikz\node[binOR, minimum width=0.85em,minimum height=0.85em]{};
-     ~New OR-aggregated binary (solver variable + linking constraints)\quad
-   \tikz\node[binHAT,minimum width=0.85em,minimum height=0.85em]{};
-     ~New exactly-one binary (solver variable + equality constraint)\\[4pt]
-   Solid border / solid arrow: purely notational (no new variable).\quad
-   Dashed border / dashed arrow: new solver variable with enforcing constraints.};
+\node[graylbl] at (0, 2.7*\vsep) {Sum Aggregation};
+\node[graylbl] at (\logicXshift, 2.7*\vsep) {Binary Logic Aggregation};
 
 \end{tikzpicture}

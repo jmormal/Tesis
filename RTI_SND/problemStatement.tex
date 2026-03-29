@@ -75,38 +75,38 @@ When a central decision-maker, such as a dominant tier-1 manufacturer, an origin
         \caption{SND with minimised RTI return transport cost}
         \label{fig:scshared}
     \end{subfigure}
-    \caption{SND with minimized RTI return transport cost}
+    \caption{SND with minimised RTI return transport cost}
 \end{figure}
 
 On certain routes, full RTIs are accompanied by protective accessories,
 such as nets or lids, that secure parts during transit. These
 \textit{inlays} are themselves reusable and must be returned to the origin
-site after unloading. Here the FTL and less than load (LTL), also known as groupage, transport modes are addressed. 
+site after unloading. Here the FTL and LTL, also known as groupage, transport modes are addressed. 
 
-Given the daily average flows of full RTIs along the network, established previously
-by production plans within manufacturing sites, the problem to address is related to  the total number of RTIs needed in the whole SC, the empty routes of RTIs or even the type of full RTI  to transport items. The aim is to determine:
+The model takes as input the average daily flows of full RTIs between nodes, derived from production plans over a decision horizon chosen by the decision-maker — typically a month, quarter, or year. These averages are assumed to be representative of the period, meaning that demand is sufficiently stable across days for the average to serve as a reliable planning input, without extreme imbalances that would render it misleading. Under this assumption, the model determines a static service network design:
 \begin{enumerate}
   \item  Routes for empty RTI and inlay return flows.
     \item The shipment frequency per route, expressed as a
           \textit{queue time} (Q-day), i.e.\ the number of days between
           consecutive dispatches.
-    \item the transport mode on each route, i.e. Full-Truck-Load 
-    \item the total number of RTIs needed; and
-    \item whether additional RTIs must be purchased to meet network
-          requirements, accounting for safety stocks and a uniform maintenance
-          loss factor $\gamma$.
+    \item The transport mode per route, i.e. FTL or LTL.
+    \item The total number of RTIs needed.
 \end{enumerate}
-The model pursues two objectives: minimising total daily cost, comprising
-transport costs for both full and empty flows and the inventory holding cost of
-the RTI pool, and minimising CO$_2$ emissions from transport as a secondary
-criterion in a bi-objective.
+
+Operational-level planning, such as the scheduling of individual shipments or the production decisions of each plant, is outside the scope of this problem.
+
+
+The problem consists of finding the tradeoff among daily RTI transport cost, which include
+transport costs for both full and empty RTIs;  the inventory holding cost of
+the RTI pool; and CO$_2$ emissions from RTI transport.
+
+
+
+
+
 
 % ─────────────────────────────────────────────────────────────────
-The model operates at a strategic-tactical level, using 
-daily averages of RTI flows rather than an explicit multi-period horizon. This
-is a deliberate modelling choice, and its validity merits justification.
-
-In practice, the daily avarage flow of full RTIs between nodes is governed by
+The problem encompasses a strategic-tactical decision level, using as input data the daily averages of RTI demand flows. In practice, the daily avarage flow of full RTIs between nodes is governed by
 medium-to-long-term production contracts and procurement agreements, which
 change infrequently. The Q-days and transport modes are likewise set
 with a medium-to-long-term frequency rather than
