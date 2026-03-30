@@ -46,7 +46,7 @@
 \node[rootBox] (Xroot) at (0, 0) {$X_{cijm}$};
 
 \node[binBox] (XOR)  at (0, \vsep*1.36)   {$\overline{X}_{cij}$ (OR Variable) \\ \scriptsize $\overline{X}_{cij} \le X_{cij}$ \\ \scriptsize $X_{cij} \le |\mathcal{M}| \overline{X}_{cij}$};
-\node[binBox] (XHAT) at (0, -\vsep*1.36)  {$\hat{X}_{cij}$ (At-most-one) \\ \scriptsize $\sum_{c \in C} X_{cij} \le \hat{X}_{cij}$};
+\node[binBox] (XHAT) at (0, -\vsep*1.36)  {$\widehat{X}_{cij}$ (At-most-one) \\ \scriptsize $\sum_{r \in \mathcal{M}} X_{cijm} \le \widehat{X}_{cij}$ \\ \scriptsize $X_{cij} \ge \widehat{X}_{cij}$};
 
 \draw[barr] (Xroot.north) -- (XOR.south)  node[blbl, midway, right] {Rule 3};
 \draw[barr] (Xroot.south) -- (XHAT.north) node[blbl, midway, right] {Rule 4};

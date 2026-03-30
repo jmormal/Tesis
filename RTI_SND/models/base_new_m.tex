@@ -61,9 +61,6 @@ $X_{ij}$, $ XF_{ij}$, $ XI_{ij}$, $ XE_{ij}$
 $N_{ij}$, $ NF_{ij}$, $ NI_{ij}$, $ NE_{ij}$
   & Daily average number of RTIs, full RTIs, return inlays, and
     empty RTIs on route $(i,j)$, respectively \\
-$V_{ij}$, $ VF_{ij}$, $ VI_{ij}$, $ VE_{ij}$
-  & Daily average volume of RTIs, full RTIs, return inlays, and
-    empty RTIs on route $(i,j)$, respectively \\
 \hline
 \multicolumn{2}{|l|}{\textit{Per-shipment variables}}\\ \hline
 $q_{ij}$
@@ -195,17 +192,9 @@ is positive:
   && \forall\,(i,j)\in E \label{eq:binary-empty}
 \end{align}
 
-%
-\begin{align}
-  VF_{ij} &= NF_{ij} \cdot v^f
-  && \forall\,(i,j)\in E \label{eq:ship-NF}\\
-  VI_{ij} &= NI_{ij} \cdot v^f
-  && \forall\,(i,j)\in E \label{eq:ship-NI}\\
-  VE_{ij} &= NE_{ij} \cdot v^e
-  && \forall\,(i,j)\in E \label{eq:ship-NE}\\
-  V_{ij}  &= VF_{ij} + VI_{ij} + VE_{ij}
-  && \forall\,(i,j)\in E \label{eq:ship-N}
-\end{align}
+% ══════════════════════════════════════════════════════════════════
+%  PER-SHIPMENT QUANTITIES
+% ══════════════════════════════════════════════════════════════════
 
 \paragraph{Per-shipment RTI counts.}
 RTIs accumulated between dispatches are proportional to the queue
@@ -342,8 +331,3 @@ linearised in Section~\ref{sec:linearisation}:
   && \forall\,(i,j)\in E
   \label{eq:cost-daily}
 \end{align}
-
-\subsection{Model variations}
-The model presented above can be expanded to take into account different considerations. We introduce the following convention to reduce the notation overhaul. 
-\input{notation/notation2.tex}
-

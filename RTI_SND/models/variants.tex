@@ -1,0 +1,348 @@
+% ══════════════════════════════════════════════════════════════════════════════
+%  SECTION – Model Extensions
+% ══════════════════════════════════════════════════════════════════════════════
+
+\section{Model Extensions}
+\label{sec:extensions}
+
+The base model can be extended by activating any subset of five independent
+additions: \textbf{M} (transport modes), \textbf{R} (RTI types),
+\textbf{H} (hub nodes), \textbf{P} (explicit product flows), and \textbf{L}
+(linearisation of the queue-time products).
+Each extension is self-contained and any combination
+is valid.
+
+Extensions M, R, H, and P each introduce a new set with its index, replacing the root variables of the model by adding and additional index. Extension~L is qualitatively different: it does
+not add an index to existing variables but instead discretises the
+continuous queue time $q_{ij}$ over a finite set $\mathcal{Q}_{ij}$ of
+admissible integer values in order to discritze teh model. The result
+is a pure MILP formulation with no nonlinear terms.
+
+Each extension operates through two mechanisms.
+
+\begin{enumerate}
+  \item \textbf{Index addition or variable introduction.}
+        Table~\ref{tab:index-map} lists, for every symbol, which extensions
+        add an index to the variable or parameter or introduce a new symbol (\textbf{New}), either a variable or parameter.
+        Symbols marked $\circ$ in a column are unaffected; symbols marked
+        $\times$ are replaced by derived expressions
+        (Section~\ref{sec:ext-new-constraints}).
+
+  \item \textbf{Constraint transformation.}
+        Table~\ref{tab:constraint-transform} records, for every base
+        constraint, what each active extension does to it. Extensions not
+        listed for a constraint leave it unchanged ($\circ$). Unless specified, a constraint is transformed automatically if a variable is tranformed that appears in the constraint by iterating over the new set, that is if an indexed is added to a variable or parameter.
+\end{enumerate}
+
+% ─────────────────────────────────────────────────────────────────────────────
+%  TABLE 1 — INDEX MAP
+% ─────────────────────────────────────────────────────────────────────────────
+
+\begin{longtable}{llccccc}
+\caption{Index promotion and variable introduction map.
+  $+m$/$+r$: extension adds the indicated index to this symbol.
+  \textbf{New}: symbol is introduced by this extension.
+  $\circ$: unaffected.
+  $\times$: replaced by a derived expression.
+  For Ext.~L the $k$ subscript ranges over $\mathcal{Q}_{ij}$; if Ext.~M is
+  also active, replace $(i,j)$ by $(i,j,m)$ throughout.}
+\label{tab:index-map}\\
+\toprule
+\textbf{Symbol} & \textbf{Base form}
+  & \textbf{M} & \textbf{R} & \textbf{H} & \textbf{P} & \textbf{L} \\
+\midrule
+\endfirsthead
+\multicolumn{7}{l}{\small\itshape (Table~\ref{tab:index-map} continued)}\\
+\toprule
+\textbf{Symbol} & \textbf{Base form}
+  & \textbf{M} & \textbf{R} & \textbf{H} & \textbf{P} & \textbf{L} \\
+\midrule
+\endhead
+\midrule
+\multicolumn{7}{r}{\small\itshape Continued on next page}\\
+\endfoot
+\bottomrule
+\endlastfoot
+
+\multicolumn{7}{l}{\textit{Sets}} \\
+$\mathcal{M}$
+  & ---
+  & \textbf{New} & $\circ$ & $\circ$ & $\circ$ & $\circ$ \\
+$R,\;R_{ij}$
+  & ---
+  & $\circ$ & \textbf{New} & $\circ$ & $\circ$ & $\circ$ \\
+$H\subseteq V$
+  & ---
+  & $\circ$ & $\circ$ & \textbf{New} & $\circ$ & $\circ$ \\
+$\mathcal{P},\;\mathcal{P}_r$
+  & ---
+  & $\circ$ & $\circ$ & $\circ$ & \textbf{New} & $\circ$ \\
+$\mathcal{Q}$
+  & ---
+  & $\circ$ & $\circ$ & $\circ$ & $\circ$ & \textbf{New} \\[4pt]
+
+\multicolumn{7}{l}{\textit{Parameters}} \\
+$\mu_{ij}$
+  & $(i,j)$
+  & $\circ$ & $+r$ & $\circ$ & $\times$ & $\circ$ \\
+$ric_{ij}$
+  & $(i,j)$
+  & $\circ$ & $+r$ & $\circ$ & $\circ$ & $\circ$ \\
+$bf_{ij}$
+  & $(i,j)$
+  & $\circ$ & $+r$ & $\circ$ & $\times$ & $\circ$ \\
+$be_{ij}$
+  & $(i,j)$
+  & $\circ$ & $+r$ & $\circ$ & $\times$ & $\circ$ \\
+$bm_{ijm}$
+  & $(i,j,m)$
+  &  \textbf{New} & $+r$ & $\circ$ & $\times$ & $\circ$ \\
+$c_{ij}$
+  & $(i,j)$
+  & $+m$ & $\circ$ & $\circ$ & $\circ$ & $\circ$ \\
+$f_{ij}$
+  & $(i,j)$
+  & $+m$ & $\circ$ & $\circ$ & $\circ$ & $\circ$ \\
+$v^{f},\;v^{e}$
+  & scalar
+  & $\circ$ & $+r$ & $\circ$ & $\circ$ & $\circ$ \\
+$q^{\min},\;q^{\max}$
+  & scalar
+  & $+m$ & $\circ$ & $\circ$ & $\circ$ & $\times$ \\
+$\omega_{ij},\;\delta_{ij}$
+  & $(i,j)$
+  & $+m$ & $\circ$ & $\circ$ & $\circ$ & $ +q $\\
+$ssf,\;sse$
+  & $(i,j)$
+  & $\circ$ & $+r$ & $\circ$ & $\circ$ & $\circ$ \\
+$s^{\text{RTI}},\;p^{\text{RTI}}$
+  & scalar
+  & $\circ$ & $+r$ & $\circ$ & $\circ$ & $\circ$ \\
+$l_{ij},\;\alpha^f,\;\alpha^e$
+  & $(i,j)$/scalar
+  & $\circ$ & $\circ$ & $\circ$ & $\circ$ & $\circ$ \\
+$d_{pij}$
+  & ---
+  & $\circ$ & $\circ$ & $\circ$ & \textbf{New} & $\circ$ \\
+$\eta_{pr}$
+  & ---
+  & $\circ$ & $\circ$ & $\circ$ & \textbf{New} & $\circ$ \\[4pt]
+
+\multicolumn{7}{l}{\textit{Binary variables}} \\
+$X_{ij},\;XF_{ij},\;XI_{ij},\;XE_{ij}$
+  & $(i,j)$
+  & $+m$ & $+r$ & $\circ$ & $\circ$ & $ +q $\\[4pt]
+$XH_{i}$
+  & $(i)$
+  & $\circ$ & $\circ$ &  \textbf{New} & $\circ$ & $ \circ$\\[4pt]
+\multicolumn{7}{l}{\textit{Flow variables}} \\
+$NF_{ij},\;NI_{ij},\;NE_{ij}$
+  & $(i,j)$
+  & $+m$ & $+r$ & $\circ$ & $\circ$ & $ +q $\\
+$q_{ij}$
+  & $(i,j)$
+  & $+m$ & $+r$ & $\circ$ & $\circ$ & $\times$ \\
+$NS_{ij},\;NSF_{ij},\;NSI_{ij},\;NSE_{ij}$
+  & $(i,j)$
+  & $+m$ & $+r$ & $\circ$ & $\circ$ & $ +q $\\
+$VH_{i}$
+  & $(i)$
+  & $\circ$ & $\circ$ &  \textbf{New} & $\circ$ & $ \circ$\\[4pt]
+$CH_{i}$
+  & $(i)$
+  & $\circ$ & $\circ$ &  \textbf{New} & $\circ$ & $ \circ$\\[4pt]
+$VS_{ij},\;VSF_{ij},\;VSI_{ij},\;VSE_{ij}$
+  & $(i,j)$
+  & $+m$ & $+r$  & $\circ$ & $\circ$ & $ +q $\\
+$TNCF_{ij},\;TNCE_{ij},\;TNCI_{ij}$
+  & $(i,j)$
+  & $+m$ & $+r$ & $\circ$ & $\circ$ & $ +q $\\
+$P$
+  & scalar
+  & $\circ$ & $+r$ & $\circ$ & $\circ$ & $\circ$ \\
+$TC_{ij},\;TCS_{ij}$
+  & $(i,j)$
+  & $+m$ & $+r$ & $\circ$ & $\circ$ & $ +q $\\[4pt]
+\end{longtable}
+
+% ─────────────────────────────────────────────────────────────────────────────
+%  TABLE 2 — CONSTRAINT TRANSFORMATION
+% ─────────────────────────────────────────────────────────────────────────────
+
+
+
+% ─────────────────────────────────────────────────────────────────────────────
+%  NEW CONSTRAINTS PER EXTENSION
+% ─────────────────────────────────────────────────────────────────────────────
+
+\subsection{New Constraints Introduced by Each Extension}
+\label{sec:ext-new-constraints}
+
+\paragraph{Extension M.}
+Only one type of transport mode can for the same route.
+%
+\begin{align}
+  \overline{X}_{ijm} \leq bm_{ijm} && \forall\,(i,j)\in E  \label{eq:ext-m-or}
+\end{align}
+\begin{align}
+  \widehat{X}_{ij} \leq b_{ij} && \forall\,(i,j)\in E  \label{eq:at-most-one-m}
+\end{align}
+\paragraph{Extension R.}
+Each route commits to exactly one admissible RTI type (Rule~4); demand and
+inlay flows are conditioned on the selected type:
+%
+\begin{align}
+  \overline{XF}_{ijr} &= bf_{ijr}
+  && \forall\,(i,j)\in E , r \in R
+  \label{eq:or-for-r} 
+\end{align}
+%
+
+\paragraph{Extension H.}
+Hub nodes $i\in H$ are unconstrained. At every non-hub node
+$i\in V\setminus H$ the incoming and outgoing empty-flow binaries are linked
+to aggregated flows via Rule~3 and forced mutually exclusive. The index $r$
+appears only when Ext.~R is also active:
+%
+\begin{align}
+  \overline{XE}_{\cdot i} + \overline{XE}_{i \cdot} &\leq 1
+  && \forall\,i\in V\setminus H
+  \label{eq:ext-h-excl}
+\end{align}
+
+
+\begin{align}
+  XH_i = \overline{X}_{i\cdot}\\
+  VH_i = V_{i \cdot}
+  CH_{i} = fhc_{i}\cdot  XH_i + VH_i \cdot vhc_i 
+\end{align}
+ 
+CH is to be added to the monetary costs. 
+
+\paragraph{Extension P.}
+%
+%
+\begin{align}
+  NF_{ijpr} =  \mu_{ijpr}*XF_{ijpr} \\ 
+  \mu_{ijpr} = \frac{d_{ijp}}{\eta_{pr}}
+\end{align}
+%
+\begin{align}
+  \widehat{XF}_{ijp} &= bf_{ijp}
+  && \forall\,(i,j)\in E , r \in R
+  \label{eq:ext-r-sel} 
+\end{align}
+\paragraph{Extension L — Linearisation of products of two decision variables.}
+
+The base model contains three families of terms that are products of two
+decision variables, all of the form $(\text{flow})\times q_{ij}$:
+\begin{enumerate}
+  \item $NF_{ij}\cdot q_{ij}$ and $NI_{ij}\cdot q_{ij}$, which involve
+        flows fixed by demand once the route is active.
+  \item $NE_{ij}\cdot q_{ij}$, which involves a free flow variable.
+  \item $TC_{ij}\cdot q_{ij}$, which equates per-shipment to daily cost.
+\end{enumerate}
+%
+Extension~L eliminates all three by discretising $q_{ij}$ over the finite set
+$\mathcal{Q}_{ij}\subset\mathbb{Z}_{>0}$ of admissible queue times.
+A binary variable $z_{ij,k}$ selects the active queue time value. If
+Ext.~M is also active, the index $m$ is appended everywhere
+($z_{ijm,k}$, $\mathcal{Q}_{ijm}$, etc.).
+
+\medskip\noindent\textbf{Queue-time discretisation.}
+The queue time is expressed as a weighted sum over admissible integer values
+and deactivated when the route is idle:
+%
+\begin{align}
+  q_{ij} &= \sum_{k\in\mathcal{Q}_{ij}} k\cdot z_{ij,k}
+  && \forall\,(i,j)\in E
+  \label{eq:ext-l-q} \\[4pt]
+  \sum_{k\in\mathcal{Q}_{ij}} z_{ij,k} &= X_{ij}
+  && \forall\,(i,j)\in E
+  \label{eq:ext-l-z-sum}
+\end{align}
+%
+Constraint \eqref{eq:ext-l-z-sum} ensures exactly one queue-time value is
+selected when the route is active and none when it is not.
+Together \eqref{eq:ext-l-q}--\eqref{eq:ext-l-z-sum} replace the bounds
+\eqref{eq:q-bounds}.
+
+\medskip\noindent\textbf{Linearisation of family 1 (fixed-demand flows).}
+Because $NF_{ij}=\mu_{ij}\cdot X_{ij}$ and \eqref{eq:ext-l-z-sum} implies
+$X_{ij}\cdot z_{ij,k}=z_{ij,k}$, the products reduce directly to linear
+expressions without auxiliary variables:
+%
+\begin{align}
+  NSF_{ij} &= \mu_{ij}\!\sum_{k\in\mathcal{Q}_{ij}} k\cdot z_{ij,k}
+  && \forall\,(i,j)\in E
+  \label{eq:ext-l-NSF} \\[4pt]
+  NSI_{ij} &= ric_{ij}\cdot\mu_{ij}\!\sum_{k\in\mathcal{Q}_{ij}} k\cdot z_{ij,k}
+  && \forall\,(i,j)\in E
+  \label{eq:ext-l-NSI}
+\end{align}
+
+\medskip\noindent\textbf{Linearisation of family 2 (free empty-RTI flow).}
+Introduce the auxiliary continuous variable
+$\widetilde{NE}_{ij,k}\coloneqq NE_{ij}\cdot z_{ij,k}$, linearised by the
+standard McCormick reformulation for a product of a continuous and a binary
+variable:
+%
+\begin{align}
+  \widetilde{NE}_{ij,k} &\leq NE^{\max}_{ij}\cdot z_{ij,k}
+  && \forall\,(i,j)\in E,\; k\in\mathcal{Q}_{ij}
+  \label{eq:ext-l-NEt-ub1} \\[2pt]
+  \widetilde{NE}_{ij,k} &\leq NE_{ij}
+  && \forall\,(i,j)\in E,\; k\in\mathcal{Q}_{ij}
+  \label{eq:ext-l-NEt-ub2} \\[2pt]
+  \widetilde{NE}_{ij,k} &\geq NE_{ij} - NE^{\max}_{ij}(1-z_{ij,k})
+  && \forall\,(i,j)\in E,\; k\in\mathcal{Q}_{ij}
+  \label{eq:ext-l-NEt-lb} \\[2pt]
+  \widetilde{NE}_{ij,k} &\geq 0
+  && \forall\,(i,j)\in E,\; k\in\mathcal{Q}_{ij}
+  \label{eq:ext-l-NEt-nn}
+\end{align}
+%
+where $NE^{\max}_{ij}$ is a valid upper bound on $NE_{ij}$.
+The per-shipment count and volume then become:
+%
+\begin{align}
+  NSE_{ij} &= \sum_{k\in\mathcal{Q}_{ij}} k\cdot\widetilde{NE}_{ij,k}
+  && \forall\,(i,j)\in E
+  \label{eq:ext-l-NSE} \\[4pt]
+  VSE_{ij} &= v^{e}\!\sum_{k\in\mathcal{Q}_{ij}} k\cdot\widetilde{NE}_{ij,k}
+  && \forall\,(i,j)\in E
+  \label{eq:ext-l-VSE}
+\end{align}
+
+\medskip\noindent\textbf{Linearisation of family 3 (daily cost ratio).}
+Introduce the auxiliary continuous variable
+$\widetilde{TC}_{ij,k}\coloneqq TC_{ij}\cdot z_{ij,k}$, linearised
+analogously with an upper bound $TC^{\max}_{ij}$:
+%
+\begin{align}
+  \widetilde{TC}_{ij,k} &\leq TC^{\max}_{ij}\cdot z_{ij,k}
+  && \forall\,(i,j)\in E,\; k\in\mathcal{Q}_{ij}
+  \label{eq:ext-l-TCt-ub1} \\[2pt]
+  \widetilde{TC}_{ij,k} &\leq TC_{ij}
+  && \forall\,(i,j)\in E,\; k\in\mathcal{Q}_{ij}
+  \label{eq:ext-l-TCt-ub2} \\[2pt]
+  \widetilde{TC}_{ij,k} &\geq TC_{ij} - TC^{\max}_{ij}(1-z_{ij,k})
+  && \forall\,(i,j)\in E,\; k\in\mathcal{Q}_{ij}
+  \label{eq:ext-l-TCt-lb} \\[2pt]
+  \widetilde{TC}_{ij,k} &\geq 0
+  && \forall\,(i,j)\in E,\; k\in\mathcal{Q}_{ij}
+  \label{eq:ext-l-TCt-nn}
+\end{align}
+%
+The daily-cost constraint \eqref{eq:cost-daily} is then replaced by:
+%
+\begin{align}
+  \sum_{k\in\mathcal{Q}_{ij}} k\cdot\widetilde{TC}_{ij,k} &= TCS_{ij}
+  && \forall\,(i,j)\in E
+  \label{eq:ext-l-cost-daily}
+\end{align}
+%
+After applying Extension~L the model contains no products of two decision
+variables and is a pure mixed-integer linear programme. If Ext.~M is also
+active, all of \eqref{eq:ext-l-q}--\eqref{eq:ext-l-cost-daily} are
+replicated $\forall m\in\mathcal{M}$ with mode-indexed counterparts.

@@ -38,10 +38,11 @@ Together, these enforce $\overline{X}_{cij} = 1 \iff X_{cij} \geq 1$.
 
 \medskip
 \noindent\textbf{Rule 4 (At-most-one aggregation).} 
-When at most one commodity type may be active on a lane, a new binary $\hat{X}_{cij}$ is introduced and linked to the sum aggregate $X_{cij}$ by:
-\begin{equation}
-  \sum_{c \in C} X_{cij} \leq \hat{X}_{cij} \quad \forall (i,j) \in E \label{eq:at-most-one}
-\end{equation}
+When at most one commodity type may be active on a lane, a new binary $\widehat{X}_{cij}$ is introduced and linked to the sum aggregate $X_{cij}$ by:
+\begin{align}
+  \widehat{X}_{cij} &\leq X_{cij} \label{eq:At-most-one-m-lb} \\
+  X_{cij} &\leq  \cdot \widehat{X}_{cij} \label{eq:At-most-one-m-ub}
+\end{align}
 
 % ------------------------------------------------------------------
 % TIKZ LATTICE FIGURE
