@@ -83,36 +83,26 @@ such as nets or lids, that secure parts during transit. These
 \textit{inlays} are themselves reusable and must be returned to the origin
 site after unloading. Here the FTL and LTL, also known as groupage, transport modes are addressed. 
 
-The model takes as input the average daily flows of full RTIs between nodes, derived from production plans over a decision horizon chosen by the decision-maker — typically a month, quarter, or year. These averages are assumed to be representative of the period, meaning that demand is sufficiently stable across days for the average to serve as a reliable planning input, without extreme imbalances that would render it misleading. Under this assumption, the model determines a static service network design:
+The model takes as input data the average daily flows of full RTIs between nodes, derived from realesed production plans over a planning horizon chosen by the decision-maker, typically a month, quarter, or year. These averages are assumed to be representative of the considered planning horizon, meaning that demands are sufficiently stable daily demands for the average to serve as a reliable  input data, without extreme imbalances that would render it misleading. Under this assumption, the problem can be considered a service network design for RTIs, which consists of finding the tradeoff among daily RTI transport cost, which include
+transport costs for both full and empty RTIs;  the inventory holding cost of
+the RTI pool; and CO$_2$ emissions from RTI transport.
+
 \begin{enumerate}
   \item  Routes for empty RTI and inlay return flows.
     \item The shipment frequency per route, expressed as a
           \textit{queue time} (Q-day), i.e.\ the number of days between
           consecutive dispatches.
     \item The transport mode per route, i.e. FTL or LTL.
-    \item The total number of RTIs needed.
+    \item The total number of RTIs needed in the whole SC network.
 \end{enumerate}
-
-Operational-level planning, such as the scheduling of individual shipments or the production decisions of each plant, is outside the scope of this problem.
-
-
-The problem consists of finding the tradeoff among daily RTI transport cost, which include
-transport costs for both full and empty RTIs;  the inventory holding cost of
-the RTI pool; and CO$_2$ emissions from RTI transport.
-
-
-
 
 
 
 % ─────────────────────────────────────────────────────────────────
-The problem encompasses a strategic-tactical decision level, using as input data the daily averages of RTI demand flows. In practice, the daily avarage flow of full RTIs between nodes is governed by
-medium-to-long-term production contracts and procurement agreements, which
-change infrequently. The Q-days and transport modes are likewise set
+The problem encompasses a strategic-tactical decision level, using as input data the daily averages of RTI demand flows. In practice, the daily avarage flow of full RTIs between nodes is managed by
+medium-to-long-term production contracts and procurement agreements, which should remain stable over the planning horizon under consideration. The Q-days and transport modes are likewise set
 with a medium-to-long-term frequency rather than
-renegotiated day by day or week by week. By optimizing strategic-tactical decisions, instead of multi-horizon decions, the model is computationally
-tractable even for large industrial networks, where a fully operational
-day-by-day optimisation would be intractable. The strategic-tactical
-model thus provides a rigorous, scalable upper bound on the achievable savings
-from collaborative RTI management, which can subsequently serve as a benchmark
-and input for operational-level planning.
+renegotiated daily or weekly. By optimising strategic-tactical decisions for a given planning horizon, instead of multi-period decisions, the model is computationally
+efficient even for large industrial networks, where a fully operational
+multi-period optimisation could be intractable time-consumption. Here, the strategic-tactical perspective provides a scalable upper bound on the achievable savings
+from collaborative RTI management, by establishing tranport routes, Q-days and the RTI pool size, which can subsequently serve as input data for operational-level RTI tranport planning.
