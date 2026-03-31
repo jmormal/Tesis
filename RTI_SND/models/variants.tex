@@ -88,15 +88,9 @@ $\mu_{ij}$
 $ric_{ij}$
   & $(i,j)$
   & $\circ$ & $+r$ & $\circ$ & $\circ$ & $\circ$ \\
-$bf_{ij}$
+  $bf_{ij}, be_{ij},bi_{ij}$
   & $(i,j)$
   & $\circ$ & $+r$ & $\circ$ & $\times$ & $\circ$ \\
-$be_{ij}$
-  & $(i,j)$
-  & $\circ$ & $+r$ & $\circ$ & $\times$ & $\circ$ \\
-$bm_{ijm}$
-  & $(i,j,m)$
-  &  \textbf{New} & $+r$ & $\circ$ & $\times$ & $\circ$ \\
 $c_{ij}$
   & $(i,j)$
   & $+m$ & $\circ$ & $\circ$ & $\circ$ & $\circ$ \\
@@ -184,12 +178,16 @@ Only one type of transport mode can for the same route.
 \begin{align}
   \overline{X}_{ijm} \leq bm_{ijm} && \forall\,(i,j)\in E  \label{eq:ext-m-or}
 \end{align}
+Equation \ref{eq:route-enforced-by-parameters} is replaced by \ref{eq:at-most-one-m} to enforce only one type of transport mode per route.
 \begin{align}
-  \widehat{X}_{ij} \leq b_{ij} && \forall\,(i,j)\in E  \label{eq:at-most-one-m}
+  \widehat{X}_{ij} \leq bf_{ij}+be_{ij}+bi_{ij} && \forall\,(i,j)\in E  \label{eq:at-most-one-m}
 \end{align}
+
+
 \paragraph{Extension R.}
 Each route commits to exactly one admissible RTI type (Rule~4); demand and
 inlay flows are conditioned on the selected type:
+Equation \ref{eq:full-activation} is replaced by \ref{eq:or-for-r} to enforce only different full RTIs types are sent.
 %
 \begin{align}
   \overline{XF}_{ijr} &= bf_{ijr}
@@ -197,7 +195,11 @@ inlay flows are conditioned on the selected type:
   \label{eq:or-for-r} 
 \end{align}
 %
-
+ 
+Equation \ref{eq:route-enforced-by-parameters} is replaced by \ref{eq:at-most-one-m} to enforce only one type of transport mode per route.
+\begin{align}
+  \overline{X}_{ij} \leq \sum_{r\in R} bf_{ijr}+be_{ijr}+bi_{ijr} && \forall\,(i,j)\in E  \label{eq:link-r-and-route}
+\end{align}
 \paragraph{Extension H.}
 Hub nodes $i\in H$ are unconstrained. At every non-hub node
 $i\in V\setminus H$ the incoming and outgoing empty-flow binaries are linked
@@ -213,7 +215,7 @@ appears only when Ext.~R is also active:
 
 \begin{align}
   XH_i = \overline{X}_{i\cdot}\\
-  VH_i = V_{i \cdot}
+  VH_i = V_{i \cdot} \\
   CH_{i} = fhc_{i}\cdot  XH_i + VH_i \cdot vhc_i 
 \end{align}
  

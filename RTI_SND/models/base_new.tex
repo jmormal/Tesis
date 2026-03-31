@@ -23,6 +23,9 @@ $\mu_{ij}$
 $ric_{ij}$
   & Fraction of full shipments on route $(i,j)$ that require
     a return inlay \\
+    $bf_{ij}, bi_{ij}, be_{ij}$
+  & Binary parameter indicating full RTI, return inlay RTIs, and empty
+    RTI can traverse route $(i,j)$, respectively \\
 $c_{ij}$
   & Transport cost per unit volume on route $(i,j)$ \\
 $f_{ij}$
@@ -134,7 +137,9 @@ A route is active if and only if it carries full, empty, or inlay RTIs:
   3\cdot X_{ij} &\geq XF_{ij}+XE_{ij}+XI_{ij}
   && \forall\,(i,j)\in E \\
   X_{ij} &\leq XF_{ij}+XE_{ij}+XI_{ij}
-  && \forall\,(i,j)\in E
+  && \forall\,(i,j)\in E \\
+  X_{ij} &\leq bf_{ij}+be_{ij}+bi_{ij}
+  && \forall\,(i,j)\in E \label{eq:route-enforced-by-parameters}
 \end{align}
 
 % ══════════════════════════════════════════════════════════════════
@@ -145,9 +150,9 @@ A route is active if and only if it carries full, empty, or inlay RTIs:
 A route carries full RTIs only if average daily demand is positive:
 %
 \begin{align}
-  \mu_{ij} &\geq XF_{ij}
-  && \forall\,(i,j)\in E
-  \label{eq:type-selection}
+  XF_{ij} & =  bf_{ij}
+  && \forall\,(i,j)\in E 
+  \label{eq:full-activation}
 \end{align}
 
 % ══════════════════════════════════════════════════════════════════
@@ -195,16 +200,18 @@ is positive:
   && \forall\,(i,j)\in E \label{eq:binary-empty}
 \end{align}
 
+\paragraph{Daily average volumes.}
+Full and inlay RTIs occupy volume $v^{f}$; empty RTIs occupy $v^{e}$:
 %
 \begin{align}
   VF_{ij} &= NF_{ij} \cdot v^f
-  && \forall\,(i,j)\in E \label{eq:ship-NF}\\
+  && \forall\,(i,j)\in E \label{eq:volume-F}\\
   VI_{ij} &= NI_{ij} \cdot v^f
-  && \forall\,(i,j)\in E \label{eq:ship-NI}\\
+  && \forall\,(i,j)\in E \label{eq:volume-I}\\
   VE_{ij} &= NE_{ij} \cdot v^e
-  && \forall\,(i,j)\in E \label{eq:ship-NE}\\
+  && \forall\,(i,j)\in E \label{eq:volume-E}\\
   V_{ij}  &= VF_{ij} + VI_{ij} + VE_{ij}
-  && \forall\,(i,j)\in E \label{eq:ship-N}
+  && \forall\,(i,j)\in E \label{eq:volume-daily}
 \end{align}
 
 \paragraph{Per-shipment RTI counts.}
@@ -227,11 +234,11 @@ Section~\ref{sec:linearisation}:
 Full and inlay RTIs occupy volume $v^{f}$; empty RTIs occupy $v^{e}$:
 %
 \begin{align}
-  VSF_{ij} &= NF_{ij} \cdot v^{f} \cdot q_{ij}
+  VSF_{ij} &= VF_{ij} \cdot q_{ij}
   && \forall\,(i,j)\in E \label{eq:ship-VF}\\
-  VSI_{ij} &= NI_{ij} \cdot v^{f} \cdot q_{ij}
+  VSI_{ij} &= VI_{ij} \cdot q_{ij}
   && \forall\,(i,j)\in E \label{eq:ship-VI}\\
-  VSE_{ij} &= NE_{ij} \cdot v^{e} \cdot q_{ij}
+  VSE_{ij} &= VE_{ij} \cdot q_{ij}
   && \forall\,(i,j)\in E \label{eq:ship-VE}\\
   VS_{ij}  &= VSF_{ij} + VSI_{ij} + VSE_{ij}
   && \forall\,(i,j)\in E \label{eq:ship-vol}
