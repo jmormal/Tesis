@@ -1,7 +1,7 @@
 \begin{convention}[Index suppression and aggregation from the root variable]
 \label{conv:notation}
 
-Every variable in the model is defined with a set of \textbf{root indices}. For example, the variable $\phi_{cijm}$ is defined for $(c \in C, i \in V, j \in V, m \in \mathcal{M})$; we call this the \textbf{root variable}. Writing a variable with fewer indices always denotes a \textbf{derived variable}: one or more indices have been suppressed and the root values aggregated according to the rules below.
+Every variable in the model is defined with a set of root indices. For example, the variable $\phi_{cijm}$ is defined for $(c \in C, i \in V, j \in V, m \in \mathcal{M})$; we call this the root variable. Writing a variable with fewer indices always denotes a derived variable: one or more indices have been suppressed and the root values aggregated according to the rules below.
 
 \medskip
 \noindent\textbf{Rule 1 (Sum aggregation).} 
@@ -41,7 +41,7 @@ Together, these enforce $\overline{X}_{cij} = 1 \iff X_{cij} \geq 1$.
 When at most one commodity type may be active on a lane, a new binary $\widehat{X}_{cij}$ is introduced and linked to the sum aggregate $X_{cij}$ by:
 \begin{align}
   \widehat{X}_{cij} &\leq X_{cij} \label{eq:At-most-one-m-lb} \\
-  X_{cij} &\leq  \cdot \widehat{X}_{cij} \label{eq:At-most-one-m-ub}
+  X_{cij} &\leq   \widehat{X}_{cij} \label{eq:At-most-one-m-ub}
 \end{align}
 
 % ------------------------------------------------------------------
