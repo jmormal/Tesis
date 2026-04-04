@@ -1,0 +1,213 @@
+\begin{convention}[Index suppression and aggregation]
+\label{conv:notation}
+
+\paragraph{Root variables, projected indices, and suppressed indices.}
+Every variable in the model is defined over a fixed tuple of indices, called
+its \emph{root index set}; all variables listed in
+Table~\ref{tab:nomenclature} are \emph{root variables}.
+
+Given a root variable $\phi_{\alpha}$ with full index tuple
+$\alpha = (\alpha_1, \dots, \alpha_k)$ ranging over
+$\mathcal{I}_1 \times \cdots \times \mathcal{I}_k$, partition the positions
+into a \emph{projected} subset and a \emph{suppressed} subset. Collecting
+the projected positions into tuple $\pi$ and the suppressed positions into
+tuple $\sigma$, so that $\alpha = (\pi, \sigma)$, defines two domains:
+\begin{align*}
+  \mathcal{P} &\;\coloneqq\;
+    \prod_{\text{projected } i} \mathcal{I}_i
+    & &\text{(projected domain, indexing the derived variable),}\\
+  \mathcal{S} &\;\coloneqq\;
+    \prod_{\text{suppressed } i} \mathcal{I}_i
+    & &\text{(suppressed domain, collapsed by aggregation).}
+\end{align*}
+The root variable may then be written $\phi_{\pi,\sigma}$ to make both
+parts of the index explicit. Writing $\phi$ with only $\pi$ denotes a
+\emph{derived variable}, obtained by collapsing the \emph{group}
+\[
+  \mathcal{G}(\pi)
+  \;\coloneqq\;
+  \bigl\{\, \phi_{\pi,\sigma} : \sigma \in \mathcal{S} \bigr\},
+  \qquad \forall\,\pi \in \mathcal{P},
+\]
+via an aggregation function chosen from Rules~1--3. The accent on $\phi$
+identifies which rule is applied, and $|\mathcal{S}|$ denotes the
+cardinality of the suppressed domain.
+
+\paragraph{Dot notation for repeated index sets.}
+When two or more indices range over the same set---as $i, j \in V$ do in
+$NF_{cijmpr}$---suppressing one of them by position alone would be
+ambiguous. A dot~$(\,\cdot\,)$ marks the suppressed position explicitly:
+\[
+  \operatorname{Agg}\!\bigl(\{NF_{cijmpr} : i \in V\}\bigr)
+  \;\equiv\;
+  \operatorname{Agg}\!\bigl(NF_{\cdot jmpr}\bigr),
+  \qquad
+  \operatorname{Agg}\!\bigl(\{NF_{cijmpr} : j \in V\}\bigr)
+  \;\equiv\;
+  \operatorname{Agg}\!\bigl(NF_{i\cdot mpr}\bigr).
+\]
+This convention applies uniformly to all three rules below.
+
+%──────────────────────────────────────────────────────────────────────────────
+\medskip
+\noindent\textbf{Rule 1 (Sum aggregation,~$\widetilde{\phi}$).}
+
+\smallskip
+\noindent\textit{Abstract definition.}
+Let $\phi_{\pi,\sigma}$ be any root variable (continuous, integer, or
+binary) with projected domain $\mathcal{P}$ and suppressed domain
+$\mathcal{S}$. The sum-derived variable is
+\[
+  \widetilde{\phi}_{\pi}
+  \;\coloneqq\;
+  \sum_{\sigma \in \mathcal{S}} \phi_{\pi,\sigma},
+  \qquad \forall\,\pi \in \mathcal{P}.
+\]
+For binary root variables the result is an \emph{integer count} of active
+members in the group; it is not itself binary. When $\widetilde{\phi}_{\pi}$
+is introduced explicitly as a model variable, its definition is enforced by
+the equality constraint
+\[
+  \widetilde{\phi}_{\pi} = \sum_{\sigma \in \mathcal{S}} \phi_{\pi,\sigma},
+  \qquad \forall\,\pi \in \mathcal{P}.
+\]
+
+\smallskip
+\noindent\textit{Example.}
+Consider the root variable $NF_{cijmpr}$ with full index tuple
+$(c,i,j,m,p,r) \in C \times V \times V \times \mathcal{M} \times P \times R$.
+
+\begin{itemize}
+  \item \textbf{Single suppression.}
+        Projected tuple $\pi = (c,i,j,p,r)$, suppressed tuple
+        $\sigma = m$, suppressed domain $\mathcal{S} = \mathcal{M}$,
+        projected domain $\mathcal{P} = C \times V \times V \times P \times R$:
+        \[
+          \widetilde{NF}_{cijpr}
+          \;\coloneqq\;
+          \sum_{m \in \mathcal{M}} NF_{cijmpr},
+          \qquad
+          \forall\,(c,i,j,p,r) \in \mathcal{P}.
+        \]
+
+  \item \textbf{Multiple suppressions.}
+        Projected tuple $\pi = (c,i,j)$, suppressed tuple
+        $\sigma = (m,p,r)$, suppressed domain
+        $\mathcal{S} = \mathcal{M} \times P \times R$,
+        projected domain $\mathcal{P} = C \times V \times V$:
+        \[
+          \widetilde{NF}_{cij}
+          \;\coloneqq\;
+          \sum_{(m,p,r)\,\in\,\mathcal{S}}
+          NF_{cijmpr},
+          \qquad
+          \forall\,(c,i,j) \in \mathcal{P}.
+        \]
+
+  \item \textbf{Full suppression.}
+        Projected tuple $\pi = \emptyset$ (scalar result), suppressed domain
+        $\mathcal{S} = C \times V \times V \times \mathcal{M} \times P \times R$:
+        \[
+          \widetilde{NF}
+          \;\coloneqq\;
+          \sum_{(c,i,j,m,p,r)\,\in\,\mathcal{S}}
+          NF_{cijmpr}.
+        \]
+\end{itemize}
+
+For the binary variable $X_{cijm}$, with projected tuple $\pi=(c,i,j)$,
+suppressed tuple $\sigma = m$, and suppressed domain $\mathcal{S}=\mathcal{M}$:
+\[
+  \widetilde{X}_{cij}
+  \;\coloneqq\;
+  \sum_{m \in \mathcal{M}} X_{cijm}
+  \;\in\; \{0, 1, \dots, |\mathcal{M}|\},
+  \qquad \forall\,(c,i,j) \in C \times V \times V,
+\]
+counting how many modes are active for class~$c$ on lane $(i,j)$.
+
+%──────────────────────────────────────────────────────────────────────────────
+\medskip
+\noindent\textbf{Rule 2 (OR aggregation,~$\widecheck{\phi}$).}
+
+\smallskip
+\noindent\textit{Abstract definition.}
+Let $\phi_{\pi,\sigma}$ be a \emph{binary} root variable with projected
+domain $\mathcal{P}$ and suppressed domain $\mathcal{S}$. For each
+$\pi \in \mathcal{P}$, a new binary decision variable $\widecheck{\phi}_{\pi}$
+is introduced and linked to the corresponding sum $\widetilde{\phi}_{\pi}$
+via:
+\begin{align}
+  \widecheck{\phi}_{\pi} &\leq \widetilde{\phi}_{\pi},
+    \label{eq:or-lb}\\
+  \widetilde{\phi}_{\pi} &\leq |\mathcal{S}|\cdot\widecheck{\phi}_{\pi},
+    \label{eq:or-ub}
+\end{align}
+for all $\pi \in \mathcal{P}$. Together,
+\eqref{eq:or-lb}--\eqref{eq:or-ub} enforce
+$\widecheck{\phi}_{\pi} = 1 \iff \widetilde{\phi}_{\pi} \geq 1$, i.e.\
+at least one root binary in the group $\mathcal{G}(\pi)$ equals~1.
+
+\smallskip
+\noindent\textit{Example.}
+For the binary variable $X_{cijm}$, with projected tuple $\pi = (c,i,j)$,
+projected domain $\mathcal{P} = C \times V \times V$, suppressed tuple
+$\sigma = m$, and suppressed domain $\mathcal{S} = \mathcal{M}$
+($|\mathcal{S}| = |\mathcal{M}|$), the OR-derived binary
+$\widecheck{X}_{cij}$ indicates whether \emph{any} mode is active for
+class~$c$ on lane $(i,j)$:
+\begin{align*}
+  \widecheck{X}_{cij} &\leq \widetilde{X}_{cij}, \\
+  \widetilde{X}_{cij} &\leq |\mathcal{M}|\cdot\widecheck{X}_{cij},
+  \qquad \forall\,(c,i,j) \in \mathcal{P},
+\end{align*}
+so $\widecheck{X}_{cij} = 1$ if and only if at least one mode $m \in \mathcal{M}$
+has $X_{cijm} = 1$.
+
+%──────────────────────────────────────────────────────────────────────────────
+\medskip
+\noindent\textbf{Rule 3 (At-most-one aggregation,~$\widehat{\phi}$).}
+
+\smallskip
+\noindent\textit{Abstract definition.}
+Let $\phi_{\pi,\sigma}$ be a \emph{binary} root variable with projected
+domain $\mathcal{P}$ and suppressed domain $\mathcal{S}$. For each
+$\pi \in \mathcal{P}$, a new binary decision variable $\widehat{\phi}_{\pi}$
+is introduced and linked to the corresponding sum $\widetilde{\phi}_{\pi}$
+via:
+\begin{align}
+  \widehat{\phi}_{\pi} &\leq \widetilde{\phi}_{\pi},
+    \label{eq:amo-lb}\\
+  \widetilde{\phi}_{\pi} &\leq \widehat{\phi}_{\pi},
+    \label{eq:amo-ub}
+\end{align}
+for all $\pi \in \mathcal{P}$. Because $\widehat{\phi}_{\pi}$ is binary,
+\eqref{eq:amo-lb}--\eqref{eq:amo-ub} force $\widetilde{\phi}_{\pi} \in \{0,1\}$,
+asserting that \emph{at most one} root binary in the group $\mathcal{G}(\pi)$
+may equal~1. Equivalently: $\widehat{\phi}_{\pi} = 1$ if and only if exactly
+one root binary is active; $\widehat{\phi}_{\pi} = 0$ if and only if none are.
+
+\smallskip
+\noindent\textit{Example.}
+For the binary variable $X_{cijm}$, with projected tuple $\pi = (c,i,j)$,
+projected domain $\mathcal{P} = C \times V \times V$, suppressed tuple
+$\sigma = m$, and suppressed domain $\mathcal{S} = \mathcal{M}$, the
+at-most-one-derived binary $\widehat{X}_{cij}$ asserts that at most one
+mode may be simultaneously active for class~$c$ on lane $(i,j)$:
+\begin{align*}
+  \widehat{X}_{cij} &\leq \widetilde{X}_{cij}, \\
+  \widetilde{X}_{cij} &\leq \widehat{X}_{cij},
+  \qquad \forall\,(c,i,j) \in \mathcal{P},
+\end{align*}
+so $\widehat{X}_{cij} = \widetilde{X}_{cij} \in \{0,1\}$, enforcing mutual
+exclusivity across all modes $m \in \mathcal{M}$.
+
+\begin{figure}[H]
+\centering
+\resizebox{0.95\linewidth}{!}{%
+  \input{figures/tikz/notation/notation_diagram.tex}}
+\caption{Derivation lattice: sum aggregation (left) and binary logic
+  aggregation (right).}
+\label{fig:index-lattice}
+\end{figure}
+\end{convention}

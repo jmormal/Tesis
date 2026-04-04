@@ -1,0 +1,195 @@
+% Add this color definition to your preamble or before the equations
+\newcommand{\newcolor}{\color{blue}}
+
+% ══════════════════════════════════════════════════════════════════
+%  NEW VARIABLES TABLE (For Appendix)
+% ══════════════════════════════════════════════════════════════════
+
+\begin{table}[ht]
+\centering
+\caption{Explicit binary variables replacing aggregation conventions}
+\label{tab:new_variables}
+\small
+\begin{tabular}{|p{0.15\textwidth}|p{0.1\textwidth}|p{0.65\textwidth}|}
+\hline
+\textbf{Variable} & \textbf{Type} & \textbf{Description} \\ \hline
+$YF_{ijmr}$ & Binary & 1 if any product $p$ uses full RTIs on route $(i,j)$ by mode $m$, type $r$; 0 otherwise. \\ \hline
+$YI_{ijmr}$ & Binary & 1 if any product $p$ uses inlay RTIs on route $(i,j)$ by mode $m$, type $r$; 0 otherwise. \\ \hline
+$YM_{ijm}$ & Binary & 1 if mode $m$ is active on route $(i,j)$ for any RTI type $r$; 0 otherwise. \\ \hline
+$YEOUT_{ir}$ & Binary & 1 if node $i$ dispatches empty RTIs of type $r$ to any destination $j$ by any mode $m$; 0 otherwise. \\ \hline
+$YEIN_{ir}$ & Binary & 1 if node $i$ receives empty RTIs of type $r$ from any origin $j$ by any mode $m$; 0 otherwise. \\ \hline
+\end{tabular}
+\end{table}
+
+% ══════════════════════════════════════════════════════════════════
+%  EXPLICIT MODEL FORMULATION
+% ══════════════════════════════════════════════════════════════════
+
+\paragraph{Objective function.}
+\begin{align}
+  \min \quad
+  \sum_{(i,j)\in E} \sum_{m\in\mathcal{M}} TC_{ijm}
+  \;+\;
+  \sum_{r\in R} p^{\text{RTI}}_{r} \cdot P_{r}
+  \;+\;
+  \sum_{i\in H} CH_{i}
+\end{align}
+
+\paragraph{Flow conservation.}
+\begin{align}
+  \sum_{j\in V} \sum_{m\in\mathcal{M}} N_{ijmr} &= \sum_{j\in V} \sum_{m\in\mathcal{M}} N_{jimr}
+  && \forall\,i\in V,\;r\in R
+\end{align}
+
+\paragraph{Flow--binary consistency.}
+\begin{align}
+  NF_{ijmpr} &\leq M\cdot XF_{ijmpr}, \quad XF_{ijmpr} \leq NF_{ijmpr}\cdot bf_{ijmpr}
+  && \forall\,(i,j)\in E,\;m\in\mathcal{M},\;p\in P,\;r\in R \\
+  NI_{ijmpr} &\leq M\cdot XI_{ijmpr}, \quad XI_{ijmpr} \leq NI_{ijmpr}\cdot bf_{jimpr}
+  && \forall\,(i,j)\in E,\;m\in\mathcal{M},\;p\in P,\;r\in R \\
+  NE_{ijmr} &\leq M\cdot XE_{ijmr}, \quad XE_{ijmr} \leq NE_{ijmr}\cdot be_{ijmr}
+  && \forall\,(i,j)\in E,\;m\in\mathcal{M},\;r\in R \\ 
+  N_{ijmr} &= \sum_{p\in P} NF_{ijmpr} + \sum_{p\in P} NI_{ijmpr} + NE_{ijmr}
+  && \forall\,(i,j)\in E,\;m\in\mathcal{M},\;r\in R
+\end{align}
+
+\paragraph{Route activation.}
+\begin{align}
+  3\cdot X_{ijmr}
+    &\geq YF_{ijmr} + XE_{ijmr} + YI_{ijmr}
+  && \forall\,(i,j)\in E,\;m\in\mathcal{M},\;r\in R \\
+  X_{ijmr}
+  &\leq  YF_{ijmr} + XE_{ijmr} + YI_{ijmr}
+  && \forall\,(i,j)\in E,\;m\in\mathcal{M},\;r\in R
+\end{align}
+
+\paragraph{Full-route activation.}
+\begin{align}
+  \sum_{m\in\mathcal{M}} \sum_{r\in R} XF_{ijmpr} &= bp_{ijp}
+  && \forall\,(i,j)\in E,\;p\in P
+\end{align}
+
+\paragraph{Transport mode selection.}
+\begin{align}
+  YM_{ijm}
+    &\leq bm_{ijm}
+  && \forall\,(i,j)\in E,\;m\in\mathcal{M} \\
+  \sum_{m\in\mathcal{M}} YM_{ijm}
+    &\leq 1
+  && \forall\,(i,j)\in E
+\end{align}
+
+\paragraph{Hub nodes.}
+\begin{align}
+  YEOUT_{ir} + YEIN_{ir}
+    &\leq 1
+  && \forall\,i\in V\setminus H, r\in R \\
+  CH_i &= fhc_i \cdot XH_i + vhc_i \sum_{j\in V}\sum_{m\in\mathcal{M}}\sum_{r\in R} V_{ijmr}
+  && \forall\,i\in H
+\end{align}
+
+\paragraph{Demand satisfaction.}
+\begin{align}
+  NF_{ijmpr} &= \mu_{ijmpr}\cdot XF_{ijmpr}
+  && \forall\,(i,j)\in E,\;m\in\mathcal{M},\;p\in P,\;r\in R
+\end{align}
+
+\paragraph{Inlay return flows.}
+\begin{align}
+  NI_{jimpr} &= ric_{ijpr}\cdot\mu_{ijmpr}\cdot XF_{ijmpr}
+  && \forall\,(i,j)\in E,\;m\in\mathcal{M},\;p\in P,\;r\in R
+\end{align}
+
+\paragraph{Daily average volumes.}
+\begin{align}
+  VF_{ijmr} &= \left(\sum_{p\in P} NF_{ijmpr}\right) v^f
+  && \forall\,(i,j)\in E,\;m\in\mathcal{M},\;r\in R \\
+  VI_{ijmr} &= \left(\sum_{p\in P} NI_{ijmpr}\right) v^f
+  && \forall\,(i,j)\in E,\;m\in\mathcal{M},\;r\in R \\
+  VE_{ijmr} &= NE_{ijmr}\cdot v^e
+  && \forall\,(i,j)\in E,\;m\in\mathcal{M},\;r\in R \\
+  V_{ijmr}  &= VF_{ijmr}+VI_{ijmr}+VE_{ijmr}
+  && \forall\,(i,j)\in E,\;m\in\mathcal{M},\;r\in R
+\end{align}
+
+\paragraph{Per-shipment RTI counts.}
+\begin{align}
+  NSF_{ijmr} &= \left(\sum_{p\in P} NF_{ijmpr}\right) q_{ijm}
+  && \forall\,(i,j)\in E,\;m\in\mathcal{M},\;r\in R \\
+  NSI_{ijmr} &= \left(\sum_{p\in P} NI_{ijmpr}\right) q_{ijm}
+  && \forall\,(i,j)\in E,\;m\in\mathcal{M},\;r\in R \\
+  NSE_{ijmr} &= NE_{ijmr}\cdot q_{ijm}
+  && \forall\,(i,j)\in E,\;m\in\mathcal{M},\;r\in R \\
+  NS_{ijmr}  &= NSF_{ijmr}+NSI_{ijmr}+NSE_{ijmr}
+  && \forall\,(i,j)\in E,\;m\in\mathcal{M},\;r\in R
+\end{align}
+
+\paragraph{Per-shipment volumes.}
+\begin{align}
+  VSF_{ijmr} &= VF_{ijmr}\cdot q_{ijm}
+  && \forall\,(i,j)\in E,\;m\in\mathcal{M},\;r\in R \\
+  VSI_{ijmr} &= VI_{ijmr}\cdot q_{ijm}
+  && \forall\,(i,j)\in E,\;m\in\mathcal{M},\;r\in R \\
+  VSE_{ijmr} &= VE_{ijmr}\cdot q_{ijm}
+  && \forall\,(i,j)\in E,\;m\in\mathcal{M},\;r\in R \\
+  VS_{ijmr}  &= VSF_{ijmr}+VSI_{ijmr}+VSE_{ijmr}
+  && \forall\,(i,j)\in E,\;m\in\mathcal{M},\;r\in R
+\end{align}
+
+\paragraph{Queue time bounds.}
+\begin{align}
+  q^{\min}_{m}\cdot YM_{ijm} \;\leq\; q_{ijm} \;\leq\; q^{\max}_{m}\cdot YM_{ijm}
+  && \forall\,(i,j)\in E,\;m\in\mathcal{M}
+\end{align}
+
+\paragraph{Shipment volume bounds.}
+\begin{align}
+  \omega_{ijm}\cdot YM_{ijm} \;\leq\; \sum_{r\in R} VS_{ijmr} \;\leq\; \delta_{ijm}\cdot YM_{ijm}
+  && \forall\,(i,j)\in E,\;m\in\mathcal{M}
+\end{align}
+
+\paragraph{Total RTI pool requirements.}
+\begin{align}
+  TNCF_{ijmr} &= (1+\alpha^{f})\!\left( NSF_{ijmr} + l_{ijm}\cdot \sum_{p\in P} NF_{ijmpr} + XF_{ijmr}\bigl(ssf^{i}_{ijpr}+ssf^{j}_{ijpr}\bigr) \right)
+  && \forall\,(i,j)\in E,\;m\in\mathcal{M},\;p\in P,\;r\in R \\
+  TNCE_{ijmr} &= (1+\alpha^{e})\!\left( NSE_{ijmr} + l_{ijm}\cdot NE_{ijmr} + XE_{ijmr}\bigl(sse^{i}_{ijpr}+sse^{j}_{ijpr}\bigr) \right)
+  && \forall\,(i,j)\in E,\;m\in\mathcal{M},\;p\in P,\;r\in R \\
+  TNCI_{ijmr} &= (1+\alpha^{f})\!\left( NSI_{ijmr} + l_{ijm}\cdot \sum_{p\in P} NI_{ijmpr} \right)
+  && \forall\,(i,j)\in E,\;m\in\mathcal{M},\;p\in P,\;r\in R \\
+  TNC_{ijmr} &= TNCF_{ijmr}+TNCE_{ijmr}+TNCI_{ijmr}
+  && \forall\,(i,j)\in E,\;m\in\mathcal{M},\;p\in P,\;r\in R
+\end{align}
+
+\paragraph{RTI purchase.}
+\begin{align}
+  \sum_{(i,j)\in E} \sum_{m\in\mathcal{M}} \sum_{p\in P} TNC_{ijmr} &\leq s^{\text{RTI}}_{r} + P_{r}, \qquad P_{r}\geq 0
+  && \forall\,r\in R
+\end{align}
+
+\paragraph{Daily transport costs.}
+\begin{align}
+  TCS_{ijm} &= \left(\sum_{r\in R} VS_{ijmr}\right) c_{ijm} + \left(\sum_{r\in R} X_{ijmr}\right) f_{ijm}
+  && \forall\,(i,j)\in E,\;m\in\mathcal{M} \\
+  TC_{ijm}\cdot q_{ijm} &= TCS_{ijm}
+  && \forall\,(i,j)\in E,\;m\in\mathcal{M}
+\end{align}
+
+% ══════════════════════════════════════════════════════════════════
+%  LOGICAL LINKING CONSTRAINTS
+% ══════════════════════════════════════════════════════════════════
+
+\paragraph{Logical Linking Constraints.}
+\begin{align}
+\newcolor YF_{ijmr} &\newcolor \leq \sum_{p \in P} XF_{ijmpr} && \newcolor \forall\,(i,j)\in E,\;m\in\mathcal{M},\;r\in R \\
+\newcolor \sum_{p \in P} XF_{ijmpr} &\newcolor \leq |P| \cdot YF_{ijmr} && \newcolor \forall\,(i,j)\in E,\;m\in\mathcal{M},\;r\in R \\
+\newcolor YI_{ijmr} &\newcolor \leq \sum_{p \in P} XI_{ijmpr} && \newcolor \forall\,(i,j)\in E,\;m\in\mathcal{M},\;r\in R \\
+\newcolor \sum_{p \in P} XI_{ijmpr} &\newcolor \leq |P| \cdot YI_{ijmr} && \newcolor \forall\,(i,j)\in E,\;m\in\mathcal{M},\;r\in R \\
+\newcolor YM_{ijm} &\newcolor \leq \sum_{r \in R} X_{ijmr} && \newcolor \forall\,(i,j)\in E,\;m\in\mathcal{M} \\
+\newcolor \sum_{r \in R} X_{ijmr} &\newcolor \leq |R| \cdot YM_{ijm} && \newcolor \forall\,(i,j)\in E,\;m\in\mathcal{M} \\
+\newcolor XH_i &\newcolor \leq \sum_{j \in V} \sum_{m \in \mathcal{M}} \sum_{r \in R} X_{ijmr} && \newcolor \forall\,i\in H \\
+\newcolor \sum_{j \in V} \sum_{m \in \mathcal{M}} \sum_{r \in R} X_{ijmr} &\newcolor \leq |V||\mathcal{M}||R| \cdot XH_i && \newcolor \forall\,i\in H \\
+\newcolor YEOUT_{ir} &\newcolor \leq \sum_{j \in V} \sum_{m \in \mathcal{M}} XE_{ijmr} && \newcolor \forall\,i\in V,\;r\in R \\
+\newcolor \sum_{j \in V} \sum_{m \in \mathcal{M}} XE_{ijmr} &\newcolor \leq |V||\mathcal{M}| \cdot YEOUT_{ir} && \newcolor \forall\,i\in V,\;r\in R \\
+\newcolor YEIN_{ir} &\newcolor \leq \sum_{j \in V} \sum_{m \in \mathcal{M}} XE_{jimr} && \newcolor \forall\,i\in V,\;r\in R \\
+\newcolor \sum_{j \in V} \sum_{m \in \mathcal{M}} XE_{jimr} &\newcolor \leq |V||\mathcal{M}| \cdot YEIN_{ir} && \newcolor \forall\,i\in V,\;r\in R
+\end{align}

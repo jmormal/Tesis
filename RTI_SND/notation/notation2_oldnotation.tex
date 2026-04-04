@@ -1,0 +1,202 @@
+% ══════════════════════════════════════════════════════════════════
+%  NOTATION CONVENTION  –  final version for IJPR
+%  Requires: \usepackage{mathabx} or custom \widecheck command
+% ══════════════════════════════════════════════════════════════════
+
+\begin{convention}[Index suppression and aggregation]
+\label{conv:notation}
+
+Variables in the model carry up to six indices (see
+Table~\ref{tab:nomenclature}). To avoid writing three and four-level
+summations and writing aditional constraints to imply boolena logic, we adopt the following convention: suppressing
+one or more indices from a variable and placing an accent on its name
+produces a derived variable whose values are obtained by
+collapsing the suppressed indices according to one of three aggregation
+rules. The accent identifies which rule is applied.
+
+We call the original, fully-indexed variable the root variable.
+The indices that remain after the suppression are called projected
+indices, collected into the tuple~$\pi$. The set of all combinations of the suppressed indices is
+denoted~$\mathcal{S}$, so that $|\mathcal{S}|$ is the number of root
+entries sharing a given combination of retained indices.
+
+
+
+\paragraph{Dot notation.}
+
+%----------------------------------------------------------------------
+\medskip
+\noindent\textbf{Rule~1 \textnormal{(Sum,~$\widetilde{\phantom{x}}$).}}
+Suppressing one or more indices and writing a tilde denotes the
+sum over the suppressed indices:
+\[
+  \widetilde{\phi}_{\pi}
+  \;\coloneqq\;
+  \sum_{\sigma\in\mathcal{S}} \phi_{\pi,\sigma} \quad \forall \pi,
+\]
+for each combination of projected indices~$\pi$, where $\sigma$ ranges
+over all $|\mathcal{S}|$ combinations of the suppressed indices. For
+continuous and integer root variables the result is a total; for binary
+root variables it is an integer count of active entries, not itself
+binary.
+
+\smallskip\noindent\textit{Example.}
+From the root variable $NF_{ijmpr}$
+$\bigl((i,j)\!\in\!E,\;m\!\in\!\mathcal{M},\;p\!\in\!P,
+  \;r\!\in\!R\bigr)$, suppressing $p$
+($\mathcal{S}=P$) and suppressing $p,r$
+($\mathcal{S}=P\times R$):
+\begin{align}
+  \widetilde{NF}_{ijmr}
+  &= \sum_{p\in P} NF_{ijmpr}
+  && \forall\,(i,j)\in E,\;m\in\mathcal{M},\;r\in R,
+  \label{eq:sum-ex1} \\[4pt]
+  \widetilde{NF}_{ijm}
+  &= \sum_{p\in P}\sum_{r\in R} NF_{ijmpr}
+  && \forall\,(i,j)\in E,\;m\in\mathcal{M}.
+  \label{eq:sum-ex2}
+\end{align}
+When a sum variable is introduced explicitly into the model, it is
+linked to its root by the corresponding defining equality.
+
+When two indices range over the same set, as $i,j\in V$ do in
+$NF_{ijmpr}$, suppressing one by name alone is ambiguous.
+A dot~$(\,\cdot\,)$ marks the suppressed position:
+$\widetilde{NF}_{\cdot jmpr}\coloneqq\sum_{i\in V}NF_{ijmpr}$
+suppresses~$i$, while
+$\widetilde{NF}_{i\cdot mpr}\coloneqq\sum_{j\in V}NF_{ijmpr}$
+suppresses~$j$. This convention applies to all three rules.
+
+
+%----------------------------------------------------------------------
+\medskip
+\noindent\textbf{Rule~2
+  \textnormal{(OR,~$\widecheck{\phantom{x}}$).}
+  Binary root variables only.}
+Suppressing one or more indices and writing a caron introduces a new
+binary variable equal to~1 if and only if at least one root
+binary sharing the projected indices is active. A new variable
+$\widecheck{\phi}_{\pi}$ is coupled to the corresponding sum
+$\widetilde{\phi}_{\pi}$ (Rule~1) via:
+\begin{align}
+  \widecheck{\phi}_{\pi}
+    &\leq \widetilde{\phi}_{\pi},
+    \label{eq:or-lb} \\
+  \widetilde{\phi}_{\pi}
+    &\leq |\mathcal{S}|\;\widecheck{\phi}_{\pi},
+    \label{eq:or-ub}
+\end{align}
+for each combination of projected indices~$\pi$, where $|\mathcal{S}|$
+is the number of combinations of the suppressed indices. Together,
+\eqref{eq:or-lb}--\eqref{eq:or-ub} enforce
+$\widecheck{\phi}_{\pi}=1 \iff \widetilde{\phi}_{\pi}\geq 1$.
+
+\smallskip\noindent\textit{Example.}
+From the binary $XF_{ijmpr}$, suppressing~$p$
+($\pi=(i,j,m,r)$, $\mathcal{S}=P$, $|\mathcal{S}|=|P|$)
+yields $\widecheck{XF}_{ijmr}$, which equals~1 whenever route
+$(i,j)$ carries full RTIs by mode~$m$ and RTI type~$r$ for any
+product:
+\begin{align}
+  \widecheck{XF}_{ijmr}
+    &\leq \widetilde{XF}_{ijmr}
+    && (i,j)\in E,\;m\in\mathcal{M},\;r\in R,
+    \label{eq:or-ex-lb} \\
+  \widetilde{XF}_{ijmr}
+    &\leq |P|\;\widecheck{XF}_{ijmr}
+    && (i,j)\in E,\;m\in\mathcal{M},\;r\in R,
+    \label{eq:or-ex-ub}
+\end{align}
+
+%----------------------------------------------------------------------
+\medskip
+\noindent\textbf{Rule~3
+  \textnormal{(At-most-one,~$\widehat{\phantom{x}}$).}
+  Binary root variables only.}
+Suppressing one or more indices and writing a circumflex introduces a
+new binary variable that equals the sum and simultaneously caps it
+at~1, asserting that at most one root binary sharing the
+projected indices may be active:
+\begin{align}
+  \widehat{\phi}_{\pi}
+    &\leq \widetilde{\phi}_{\pi},
+    \label{eq:amo-lb} \\
+  \widetilde{\phi}_{\pi}
+    &\leq \widehat{\phi}_{\pi},
+    \label{eq:amo-ub}
+\end{align}
+for each combination of projected indices~$\pi$. Because
+$\widehat{\phi}_{\pi}\in\{0,1\}$, both inequalities together force
+$\widetilde{\phi}_{\pi}\in\{0,1\}$: either no root binary is active
+($\widehat{\phi}_{\pi}=0$) or exactly one is
+($\widehat{\phi}_{\pi}=1$).
+
+\smallskip\noindent\textit{Example.}
+From $XF_{ijmpr}$, suppressing~$m$ and~$r$
+($\pi=(i,j,p)$, $\mathcal{S}=\mathcal{M}\times R$)
+yields $\widehat{XF}_{ijp}$, which enforces that at most one
+mode--RTI-type pair may carry product~$p$ on route $(i,j)$:
+\begin{align}
+  \widehat{XF}_{ijp}
+    &\leq \widetilde{XF}_{ijp}
+    && \forall (i,j)\in E,\;p\in P,
+    \label{eq:amo-ex-lb} \\
+  \widetilde{XF}_{ijp}
+    &\leq \widehat{XF}_{ijp}
+    && \forall (i,j)\in E,\;p\in P.
+    \label{eq:amo-ex-ub}
+\end{align}
+
+\end{convention}
+
+%----------------------------------------------------------------------
+
+Table~\ref{tab:notation-examples} lists the derived variables used in
+the model. The accent identifies the aggregation rule,
+the suppressed-indices column shows which dimensions are collapsed.
+
+\begin{table}[ht]
+\centering
+\caption{Derived variables used in the model.}
+\label{tab:notation-examples}
+\small
+\begin{tabular}{@{}lllcl@{}}
+\toprule
+Derived & Root & Suppr.\ & Rule & Interpretation \\
+\midrule
+$\widetilde{NF}_{ijmr}$
+  & $NF_{ijmpr}$ & $p$
+  & $\widetilde{\phantom{x}}$
+  & Total daily full-RTI flow on $(i,j)$ by mode $m$, type $r$ \\[3pt]
+$\widetilde{N}_{i\cdot r}$
+  & $N_{ijmr}$ & $j,m$
+  & $\widetilde{\phantom{x}}$
+  & Daily outflow of RTI type $r$ from node $i$ \\[3pt]
+$\widetilde{N}_{\cdot ir}$
+  & $N_{jimr}$ & $j,m$
+  & $\widetilde{\phantom{x}}$
+  & Daily inflow of RTI type $r$ into node $i$ \\[3pt]
+$\widecheck{XF}_{ijmr}$
+  & $XF_{ijmpr}$ & $p$
+  & $\widecheck{\phantom{x}}$
+  & Any product uses full RTIs on $(i,j)$ by $m,r$? \\[3pt]
+$\widecheck{X}_{ijm}$
+  & $X_{ijmr}$ & $r$
+  & $\widecheck{\phantom{x}}$
+  & Mode $m$ active on $(i,j)$ for any RTI type? \\[3pt]
+$\widecheck{X}_{i\cdot}$
+  & $X_{ijmr}$ & $j,m,r$
+  & $\widecheck{\phantom{x}}$
+  & Node $i$ dispatches any flow? (hub activation) \\[3pt]
+$\widecheck{XE}_{i\cdot r}$,\;
+$\widecheck{XE}_{\cdot ir}$
+  & $XE_{ijmr}$ & $j,m$
+  & $\widecheck{\phantom{x}}$
+  & Node $i$ dispatching\,/\,receiving empties of type $r$? \\[3pt]
+$\widehat{XF}_{ijp}$
+  & $XF_{ijmpr}$ & $m,r$
+  & $\widehat{\phantom{x}}$
+  & At most one mode--RTI-type pair for product $p$ on $(i,j)$ \\
+\bottomrule
+\end{tabular}
+\end{table}

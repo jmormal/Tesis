@@ -1,60 +1,234 @@
-\begin{convention}[Index suppression and aggregation from the root variable]
+% ══════════════════════════════════════════════════════════════════
+%  NOTATION CONVENTION  –  final version for IJPR
+%  Requires: \usepackage{mathabx} or custom \widecheck command
+% ══════════════════════════════════════════════════════════════════
+
+Variables in the model carry up to five indices (see
+Table~\ref{tab:nomenclature}). To avoid writing three and four-level
+summations and writing additional constraints to encode Boolean logic,
+we adopt the following convention: suppressing one or more indices from
+a variable and placing an accent on its name produces a derived
+variable whose values are obtained by collapsing the suppressed indices
+according to one of three aggregation rules: summation
+($\overline{\phantom{x}}$), logical OR
+($\widecheck{\phantom{x}}$), or at-most-one
+($\widehat{\phantom{x}}$). The accent identifies which rule is
+applied.
+
+\begin{convention}[Index suppression and aggregation]
 \label{conv:notation}
 
-Every variable in the model is defined with a set of root indices. For example, the variable $\phi_{cijm}$ is defined for $(c \in C, i \in V, j \in V, m \in \mathcal{M})$; we call this the root variable. Writing a variable with fewer indices always denotes a derived variable: one or more indices have been suppressed and the root values aggregated according to the rules below.
+We call the original, fully-indexed variable the \emph{root variable}.
+Each index of a root variable ranges over a set. The sets over which
+the retained indices range are called the \emph{projected sets}, and
+their Cartesian product is denoted~$\Pi$; the sets over which the
+suppressed indices range are called the \emph{suppressed sets}, and
+their Cartesian product is denoted~$\mathcal{S}$. We write
+$\pi\in\Pi$ for a generic element of the projected domain and
+$\sigma\in\mathcal{S}$ for a generic element of the suppressed domain.
+A derived variable is defined for every $\pi\in\Pi$ by collapsing all
+$\sigma\in\mathcal{S}$ according to the aggregation rule indicated by
+the accent.
 
+Whenever a derived variable appears in any constraint of the model,
+the variable and its defining constraints (as specified by the
+applicable rule below) are automatically introduced into the
+formulation for every $\pi\in\Pi$. In other words, writing a derived
+variable in a constraint is a shorthand that simultaneously declares
+the variable and appends its linking constraints to the model; no
+separate definition is needed.
+
+%----------------------------------------------------------------------
 \medskip
-\noindent\textbf{Rule 1 (Sum aggregation).} 
-Dropping indices from any variable denotes the sum of the root variable over every value of those indices:
-\begin{align*}
-  \phi_{cij} &\coloneqq \sum_{m \in \mathcal{M}} \phi_{cijm}, &
-  \phi_{ijm} &\coloneqq \sum_{c \in C} \phi_{cijm}, &
-  \phi &\coloneqq \sum_{c \in C} \sum_{i \in V} \sum_{j \in V} \sum_{m \in \mathcal{M}} \phi_{cijm}.
-\end{align*}
-For continuous and integer variables, this is the natural interpretation. For binary variables, the result is an \textit{integer count} of how many root-level binaries in the group equal 1; it is not itself binary. For example, $X_{cij} \coloneqq \sum_{m \in \mathcal{M}} X_{cijm}$ counts active modes for type $c$ on lane $(i,j)$ and takes values in $\{0, 1, \dots, |\mathcal{M}|\}$.
+\noindent\textbf{Rule~1 \textnormal{(Sum,~$\overline{\phantom{x}}$).}}
+Suppressing one or more indices and writing a
+$\overline{\phantom{x}}$ over the root variable denotes the sum over
+the suppressed domain~$\mathcal{S}$. For every $\pi\in\Pi$ the
+derived variable is defined by:
+\[
+  \overline{\phi}_{\pi}
+  \;\coloneqq\;
+  \sum_{\sigma\in\mathcal{S}} \phi_{\pi,\sigma}
+  \quad \forall\,\pi\in\Pi.
+\]
+For continuous and integer root variables the result is standard
+summation; for binary root variables it represents an integer count of
+active entries, not a Boolean sum.
 
-Sum aggregation is primarily a notational shorthand. However, we can also explicitly introduce derived variables to the model (e.g., $\phi_{cij}$) and define the associated equality constraint:
-\begin{equation}
-    \phi_{cij} = \sum_{m \in \mathcal{M}} \phi_{cijm} \quad \forall c \in C, (i,j) \in E \label{eq:aux-sum}
-\end{equation}
-
-\medskip
-\noindent\textbf{Rule 2 (Dot notation for the node-pair $(i,j)$).} 
-The root variable carries two active indices from the same set $V$. Suppressing one while keeping the other would be ambiguous, so a dot $(\,\cdot\,)$ marks the suppressed position:
-\begin{align*}
-  \phi_{c \cdot j m} &\coloneqq \sum_{i \in V} \phi_{cijm}, &
-  \phi_{ci \cdot m} &\coloneqq \sum_{j \in V} \phi_{cijm}.
-\end{align*}
-Rule 1 applies as normal: the result is a sum or an integer count.
-
-\medskip
-\noindent\textbf{Rule 3 (OR-aggregated binaries).} 
-A new binary decision variable ($\overline{X}$) is introduced to represent a logical \textit{OR}, linked to the sum aggregate $X_{cij}$ via:
+\smallskip\noindent\textit{Example.}
+From the root variable $NF_{ijmpr}$
+$\bigl((i,j)\!\in\!E,\;m\!\in\!\mathcal{M},\;p\!\in\!P,
+  \;r\!\in\!R\bigr)$, suppressing $p$
+($\Pi=E\times\mathcal{M}\times R$, $\mathcal{S}=P$) and
+suppressing all indices
+($\Pi=\emptyset$, $\mathcal{S}=E\times\mathcal{M}\times P\times R$):
 \begin{align}
-  \overline{X}_{cij} &\leq X_{cij} \label{eq:or-m-lb} \\
-  X_{cij} &\leq |\mathcal{M}| \cdot \overline{X}_{cij} \label{eq:or-m-ub}
+  \overline{NF}_{ijmr}
+  &= \sum_{p\in P} NF_{ijmpr}
+  && \forall\,(i,j)\in E,\;m\in\mathcal{M},\;r\in R,
+  \label{eq:sum-ex1} \\[4pt]
+  \overline{NF}
+  &= \sum_{(i,j)\in E}\sum_{m\in\mathcal{M}}\sum_{p\in P}\sum_{r\in R} NF_{ijmpr}.
+  \label{eq:sum-ex2}
 \end{align}
-Together, these enforce $\overline{X}_{cij} = 1 \iff X_{cij} \geq 1$.
+%----------------------------------------------------------------------
+%----------------------------------------------------------------------
+\paragraph{Rule 2: Positional disambiguation.}
+When two indices range over the same set, as $i,j\in V$ do in
+$NF_{ijmpr}$, suppressing one by name alone is ambiguous. A
+dot~$(\,\cdot\,)$ marks the suppressed position:
+$\overline{NF}_{\cdot jmpr}\coloneqq\sum_{i\in V}NF_{ijmpr}$
+suppresses~$i$, while
+$\overline{NF}_{i\cdot mpr}\coloneqq\sum_{j\in V}NF_{ijmpr}$
+suppresses~$j$. This convention applies to all three rules below.
 
 \medskip
-\noindent\textbf{Rule 4 (At-most-one aggregation).} 
-When at most one commodity type may be active on a lane, a new binary $\widehat{X}_{cij}$ is introduced and linked to the sum aggregate $X_{cij}$ by:
+\noindent\textbf{Rule~3
+  \textnormal{(OR,~$\widecheck{\phantom{x}}$).}
+  Binary root variables only.}
+Suppressing one or more indices and writing a
+$\widecheck{\phantom{x}}$ over the root variable symbol introduces a
+new binary variable equal to~1 if and only if at least one root binary
+sharing the same projected element~$\pi$ is active. For every
+$\pi\in\Pi$ the new variable $\widecheck{\phi}_{\pi}$ is coupled to
+the corresponding sum $\overline{\phi}_{\pi}$ (Rule~1) via:
 \begin{align}
-  \widehat{X}_{cij} &\leq X_{cij} \label{eq:At-most-one-m-lb} \\
-  X_{cij} &\leq   \widehat{X}_{cij} \label{eq:At-most-one-m-ub}
+  \widecheck{\phi}_{\pi}
+    &\leq \overline{\phi}_{\pi}
+    && \forall\,\pi\in\Pi,
+    \label{eq:or-lb} \\
+  \overline{\phi}_{\pi}
+    &\leq |\mathcal{S}|\;\widecheck{\phi}_{\pi}
+    && \forall\,\pi\in\Pi,
+    \label{eq:or-ub}
+\end{align}
+where $|\mathcal{S}|$ is the cardinality of the suppressed domain.
+Together, \eqref{eq:or-lb}--\eqref{eq:or-ub} enforce
+$\widecheck{\phi}_{\pi}=1 \iff \overline{\phi}_{\pi}\geq 1$ and,
+equivalently, $\widecheck{\phi}_{\pi}=0 \iff
+\overline{\phi}_{\pi}=0$.
+
+\smallskip\noindent\textit{Example.}
+From the binary $XF_{ijmpr}$, suppressing the indices $m, p, $ and $r$ we get 
+($\Pi=E$, $\mathcal{S}=P\times\mathcal{M}\times R$,
+$|\mathcal{S}|=|R||\mathcal{M}||P|$)
+yields $\widecheck{XF}_{ij}$, which equals~1 whenever route
+$(i,j)$ carries full RTIs:
+\begin{align}
+  \widecheck{XF}_{ij}
+    &\leq \overline{XF}_{ij}
+    && \forall\,(i,j)\in E,
+    \label{eq:or-ex-lb} \\
+  \overline{XF}_{ij}
+    &\leq |R||\mathcal{M}||P|\;\widecheck{XF}_{ij}
+    && \forall\,(i,j)\in E.
+    \label{eq:or-ex-ub}
 \end{align}
 
-% ------------------------------------------------------------------
-% TIKZ LATTICE FIGURE
-% ------------------------------------------------------------------
-\begin{figure}[H]
-\centering
-\resizebox{0.95\linewidth}{!}{%
-  \input{figures/tikz/notation/notation_diagram.tex}}
-\caption{%
-  Derivation lattice: Sum Aggregation (left) and Binary Logic Aggregation (right).
-}
-\label{fig:index-lattice}
-\end{figure}
+%----------------------------------------------------------------------
+\medskip
+\noindent\textbf{Rule~4
+  \textnormal{(At-most-one,~$\widehat{\phantom{x}}$).}
+  Binary root variables only.}
+Suppressing one or more indices and writing a
+$\widehat{\phantom{x}}$ over the root variable symbol introduces a
+new binary variable that equals the sum and simultaneously caps it
+at~1, asserting that at most one root binary sharing the same
+projected element~$\pi$ may be active. For every $\pi\in\Pi$ the
+derived variable is coupled to the corresponding sum via:
+\begin{align}
+  \widehat{\phi}_{\pi}
+    &\leq \overline{\phi}_{\pi}
+    && \forall\,\pi\in\Pi,
+    \label{eq:amo-lb} \\
+  \overline{\phi}_{\pi}
+    &\leq \widehat{\phi}_{\pi}
+    && \forall\,\pi\in\Pi.
+    \label{eq:amo-ub}
+\end{align}
+Because $\widehat{\phi}_{\pi}\in\{0,1\}$, both inequalities together
+force $\overline{\phi}_{\pi}\in\{0,1\}$: either no root binary is
+active ($\widehat{\phi}_{\pi}=0$) or exactly one is
+($\widehat{\phi}_{\pi}=1$). This is equivalent to an SOS1 constraint
+on the group of root binaries indexed by~$\mathcal{S}$ that share the
+same projected element~$\pi$.
+
+\smallskip\noindent\textit{Example.}
+From $XF_{ijmpr}$, suppressing~$m$ and~$r$
+($\Pi=E\times P$, $\mathcal{S}=\mathcal{M}\times R$)
+yields $\widehat{XF}_{ijp}$, which enforces that at most one
+mode--RTI-type pair may carry product~$p$ on route $(i,j)$:
+\begin{align}
+  \widehat{XF}_{ijp}
+    &\leq \overline{XF}_{ijp}
+    && \forall\,(i,j)\in E,\;p\in P,
+    \label{eq:amo-ex-lb} \\
+  \overline{XF}_{ijp}
+    &\leq \widehat{XF}_{ijp}
+    && \forall\,(i,j)\in E,\;p\in P.
+    \label{eq:amo-ex-ub}
+\end{align}
 
 \end{convention}
+
+%----------------------------------------------------------------------
+
+Table~\ref{tab:notation-examples} lists the derived variables used in
+the model. The accent identifies the aggregation rule; the
+suppressed-indices column shows which dimensions are collapsed. Each
+variable and its linking constraints are introduced automatically at
+the point of first use.
+
+\begin{table}[ht]
+\centering
+\caption{Derived variables used in the model.}
+\label{tab:notation-examples}
+\small
+\begin{tabular}{@{}lllcl@{}}
+\toprule
+Derived & Root & Suppr.\ & Rule & Interpretation \\
+\midrule
+$\overline{NF}_{ijmr}$
+  & $NF_{ijmpr}$ & $p$
+  & $\overline{\phantom{x}}$
+  & Total daily full-RTI flow on $(i,j)$ by mode $m$, type $r$ \\[3pt]
+$\overline{N}_{i\cdot r}$
+  & $N_{ijmr}$ & $j,m$
+  & $\overline{\phantom{x}}$
+  & Daily outflow of RTI type $r$ from node $i$\,\textsuperscript{$\dagger$} \\[3pt]
+$\overline{N}_{\cdot ir}$
+  & $N_{ijmr}$ & $j,m$
+  & $\overline{\phantom{x}}$
+  & Daily inflow of RTI type $r$ into node $i$\,\textsuperscript{$\dagger$} \\[3pt]
+$\widecheck{XF}_{ijmr}$
+  & $XF_{ijmpr}$ & $p$
+  & $\widecheck{\phantom{x}}$
+  & Any product uses full RTIs on $(i,j)$ by $m,r$? \\[3pt]
+$\widecheck{X}_{ijm}$
+  & $X_{ijmr}$ & $r$
+  & $\widecheck{\phantom{x}}$
+  & Mode $m$ active on $(i,j)$ for any RTI type? \\[3pt]
+$\widecheck{X}_{i\cdot}$
+  & $X_{ijmr}$ & $j,m,r$
+  & $\widecheck{\phantom{x}}$
+  & Node $i$ dispatches any flow? (hub activation) \\[3pt]
+$\widecheck{XE}_{i\cdot r}$,\;
+$\widecheck{XE}_{\cdot ir}$
+  & $XE_{ijmr}$ & $j,m$
+  & $\widecheck{\phantom{x}}$
+  & Node $i$ dispatching\,/\,receiving empties of type $r$? \\[3pt]
+$\widehat{XF}_{ijp}$
+  & $XF_{ijmpr}$ & $m,r$
+  & $\widehat{\phantom{x}}$
+  & At most one mode--RTI-type pair for product $p$ on $(i,j)$ \\
+\bottomrule
+\end{tabular}
+
+\smallskip
+\noindent\textsuperscript{$\dagger$}In the outflow variable
+$\overline{N}_{i\cdot r}$ the first index of the root $N_{ijmr}$ is
+the focal node~$i$ and the suppressed dot replaces~$j$; in the inflow
+variable $\overline{N}_{\cdot ir}$ the second index is the focal
+node~$i$ and the dot replaces the first index. Both derive from the
+same root~$N_{ijmr}$, with the positional role of~$i$ swapped.
+\end{table}

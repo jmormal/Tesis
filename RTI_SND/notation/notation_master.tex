@@ -1,0 +1,128 @@
+\begin{convention}[Index suppression and aggregation from the root variable]
+\label{conv:notation}
+Every variable in the model is defined with an ordered list of index--set
+pairs $(i_1 \in I_1,\, i_2 \in I_2,\, \ldots,\, i_n \in I_n)$, called its
+\emph{root definition}; the variable together with its root definition is the
+\emph{root variable}. All variables in Table~\ref{tab:nomenclature} are root
+variables.
+
+\medskip
+\noindent\textbf{Index suppression.}
+Writing a root variable $\phi$ with a strict subset of its indices, preserving
+their original order, is called \emph{index suppression}. The indices that
+appear are the \emph{retained} indices; those omitted are the \emph{suppressed}
+indices. Because the root definition is fixed, the set each suppressed index
+ranges over is already known — it is the set paired with that index in the
+root definition.
+
+Index suppression defines an aggregation group, $\mathcal{G}$. To formalize this, let $K \subset \{1, \dots, n\}$ denote the index positions that are retained, and let $S = \{1, \dots, n\} \setminus R$ denote the index positions that are suppressed.
+
+For a given tuple of fixed values for the retained indices, denoted as ${i_{r_1}\ldots,i_{r_k} $, the aggregation group is the set of all root variable instances formed by locking the retained indices to these fixed values, while the suppressed indices vary freely over their root-defined sets:$$\mathcal{G}_{(\bar{\imath}_r)_{r \in R}} \coloneqq \left\{ \phi_{i_1,\ldots,i_n} \;\middle|\; i_r = \bar{\imath}_r \text{ for all } r \in R, \text{ and } i_s \in I_s \text{ for all } s \in S \right\}$$
+For each fixed tuple of retained index values, index suppression defines the
+\emph{aggregation group} as the set of all root variable instances obtained
+by varying the suppressed indices over their root-defined sets:
+\begin{equation}
+  \mathcal{G}_{i_{r_1},\ldots,i_{r_k}}
+  \;\coloneqq\;
+  \bigl\{\,
+    \phi_{i_1,\ldots,i_n}
+    \;:\;
+    i_{r_q} \text{ fixed for each retained index } i_{r_q},\quad
+    i_s \in I_s \text{ for each suppressed index } i_s
+  \,\bigr\},
+  \label{eq:group}
+\end{equation}
+where $i_{r_1},\ldots,i_{r_k}$ are the retained indices, fixed at given
+values, and $i_{s_1},\ldots,i_{s_l}$ are the suppressed indices, varying
+freely over their root-defined sets. An \emph{aggregation rule} then maps $\mathcal{G}_{i_{r_1},\ldots,i_{r_k}}$
+to a single derived variable indexed only by the retained indices. The rules
+are defined below. Figure~\ref{fig:index-suppression} illustrates the grouping.
+
+When two indices share the same root set~$S$, suppressing one is ambiguous:
+the position of the surviving index alone does not identify which of the two
+was suppressed. A dot~$(\,\cdot\,)$ marks the suppressed position explicitly,
+restoring the ordering information:
+\[
+  \phi_{\,\cdot\; j\,m} \quad \text{(first index of $S$ suppressed)},
+  \qquad
+  \phi_{i\;\cdot\; m} \quad \text{(second index of $S$ suppressed)}.
+\]
+
+\medskip
+\noindent\textbf{Rule 1 (Sum aggregation).}
+The sum aggregation rule maps $\mathcal{G}_{i_1,\ldots,i_k}$ to the sum of
+all its elements, yielding the derived variable
+\[
+  \widetilde{\phi}_{i_1,\ldots,i_k}
+  \;\coloneqq\;
+  \sum_{j_1 \in J_1}\cdots\sum_{j_l \in J_l}
+  \phi_{i_1,\ldots,i_k,\,j_1,\ldots,j_l}.
+\]
+For example, suppressing subsets of indices from $NF_{cijmpr}$ gives:
+\begin{align*}
+  \widetilde{NF}_{cijm}
+    &\coloneqq \sum_{p \in P}\sum_{r \in R} NF_{cijmpr}, &
+  \widetilde{NF}_{cij}
+    &\coloneqq \sum_{m \in \mathcal{M}}\sum_{p \in P}\sum_{r \in R} NF_{cijmpr}, &
+  \widetilde{NF}
+    &\coloneqq \sum_{i \in V}\sum_{j \in V}
+               \sum_{m \in \mathcal{M}}\sum_{p \in P}\sum_{r \in R} NF_{cijmpr}.
+\end{align*}
+For continuous and integer variables this is the natural interpretation. For
+binary variables the result is an \emph{integer count} of how many elements
+of $\mathcal{G}$ equal~1; it is not itself binary. For example,
+$\widetilde{X}_{cij} \coloneqq \sum_{m \in \mathcal{M}} X_{cijm}$ counts
+active modes for commodity type~$c$ on lane $(i,j)$ and takes values in
+$\{0,1,\dots,|\mathcal{M}|\}$.
+
+A derived variable may also be introduced explicitly into the model together
+with its defining equality constraint; for instance:
+\begin{equation}
+  \widetilde{NF}_{cijm}
+    \coloneqq \sum_{p \in P}\sum_{r \in R} NF_{cijmpr}.
+  \label{eq:aux-sum}
+\end{equation}
+
+\medskip
+\noindent\textbf{Rule 2 (OR-aggregated binary).}
+The sum aggregate $\widetilde{X}_{cij}$ of a binary root variable is an
+integer count over $\mathcal{G}_{cij}$ and therefore not itself binary. When
+a proper binary is needed that equals~1 if and only if \emph{at least one}
+element of $\mathcal{G}_{cij}$ equals~1, a new binary variable
+$\widecheck{X}_{cij}$ is introduced and linked to the sum aggregate via:
+\begin{align}
+  \widecheck{X}_{cij} &\leq \widetilde{X}_{cij},
+    \label{eq:or-m-lb} \\
+  \widetilde{X}_{cij} &\leq |\mathcal{M}|\cdot\widecheck{X}_{cij}.
+    \label{eq:or-m-ub}
+\end{align}
+Together, \eqref{eq:or-m-lb}--\eqref{eq:or-m-ub} enforce
+$\widecheck{X}_{cij} = 1 \iff \widetilde{X}_{cij} \geq 1$.
+
+\medskip
+\noindent\textbf{Rule 3 (At-most-one aggregation).}
+When at most one element of $\mathcal{G}_{cij}$ may equal~1, a new binary
+variable $\widehat{X}_{cij}$ is introduced and linked to the sum aggregate
+via:
+\begin{align}
+  \widehat{X}_{cij} &\leq \widetilde{X}_{cij},
+    \label{eq:at-most-one-m-lb} \\
+  \widetilde{X}_{cij} &\leq \widehat{X}_{cij}.
+    \label{eq:at-most-one-m-ub}
+\end{align}
+Together, \eqref{eq:at-most-one-m-lb}--\eqref{eq:at-most-one-m-ub} enforce
+$\widehat{X}_{cij} = 1 \iff \widetilde{X}_{cij} = 1$, i.e.\ if the new
+variable is active, exactly one element of $\mathcal{G}_{cij}$ equals~1.
+
+\begin{figure}[H]
+\centering
+\resizebox{0.6\linewidth}{!}{%
+  \input{figures/tikz/notation/grouping_figure.tex}}
+\caption{Index suppression: the aggregation group $\mathcal{G}_{i_1,\ldots,i_k}$
+  collects all root variable instances that share the same retained index
+  values. An aggregation rule then reduces the group to a single derived
+  variable.}
+\label{fig:index-suppression}
+\end{figure}
+
+\end{convention}
