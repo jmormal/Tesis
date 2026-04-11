@@ -1,0 +1,388 @@
+\section{Computational Experiments}
+\label{sec:experiments}
+
+This section evaluates the proposed SND-RTI model through a series of
+computational experiments on randomly generated instances that approximate
+real-world manufacturing supply chains. The experiments pursue two
+objectives: (i)~assessing the computational scalability of the linearised
+MILP as the network grows; and (ii)~quantifying the cost savings of the
+optimised collaborative return strategy relative to the conventional
+one-to-one baseline.
+
+% ══════════════════════════════════════════════════════════════════
+%  INSTANCE GENERATION
+% ══════════════════════════════════════════════════════════════════
+
+\subsection{Instance Generation}
+\label{sec:instance-gen}
+
+Instances are generated to mirror the structure of multi-tier
+manufacturing supply chains, where plants are geographically clustered
+in industrial zones and connected by transport routes of varying
+distance and mode availability.
+
+\paragraph{Network topology.}
+Each instance is built in three steps.
+
+\begin{enumerate}
+  \item \textbf{Industrial zones.}
+        $n_Z$ industrial zones are placed uniformly at random in a
+        $[0, L] \times [0, L]$~km\textsuperscript{2} area, where
+        $L$ is chosen according to the instance class
+        (Table~\ref{tab:instance-classes}).  Each zone~$z$ contains
+        $n^{L}_z$ large plants and $n^{S}_z$ small plants, drawn
+        from the ranges specified in Table~\ref{tab:instance-classes}.
+        Plants within a zone are scattered around the zone centre
+        with a Gaussian offset ($\sigma_{\text{intra}}$~km).
+
+  \item \textbf{Route generation.}
+        A full-RTI route $(i,j)$ is generated between every
+        ordered pair of plants that satisfies a demand condition
+        (see below). Large plants have a higher probability
+        $p^{\text{inter}}$ of sourcing from plants in \emph{other}
+        zones, while small plants have a higher probability
+        $p^{\text{intra}}$ of sourcing within the \emph{same}
+        zone. Specifically, for each plant~$j$, a set of suppliers
+        is sampled: with probability $p^{\text{inter}}$ (resp.\
+        $p^{\text{intra}}$) a candidate supplier is drawn from
+        another zone (resp.\ the same zone). The expected number of
+        supply routes per plant is controlled by parameter
+        $\bar{k}$. Empty-RTI return routes are allowed between any
+        pair of nodes in the network, i.e.\ $be_{ijmr}=1$ for all
+        $(i,j) \in V \times V$, $m \in \mathcal{M}$, $r \in R$,
+        since the model optimises which of these potential return
+        arcs are actually used.
+
+  \item \textbf{Hub designation.}
+        Each industrial zone contains $n_H$ candidate hub nodes
+        ($H \subseteq V$), reflecting the common practice of
+        co-locating consolidation centres within industrial areas.
+        The value of $n_H$ scales with the instance class:
+        $n_H = 1$ for \textsc{Small}, $n_H = 2$ for
+        \textsc{Medium}, and $n_H = 3$ for \textsc{Large}
+        instances (see Table~\ref{tab:instance-classes}). Within
+        each zone, hub candidates are selected among the nodes
+        with the highest total inflow plus outflow of full RTIs.
+        The total number of candidate hubs is therefore
+        $|H| = n_H \cdot n_Z$; the model decides which of these
+        candidates to activate.
+\end{enumerate}
+
+\paragraph{Demand and product assignment.}
+Each full-RTI route $(i,j)$ carries one or more products from the
+product set~$P$. The number of products per route depends on the
+instance class and the type of the receiving plant: routes serving
+large plants carry up to~2 products in \textsc{Small} instances,
+up to~3 in \textsc{Medium}, and up to~4 in \textsc{Large}
+instances; routes serving small plants carry a single product. For
+each product assigned to a route, the daily average demand in full
+RTI units, $\mu_{ijmpr}$, is drawn from a log-normal distribution
+$\text{LogNormal}(\mu_d, \sigma_d)$, rounded to the nearest integer,
+to reflect the right-skewed demand patterns typical of manufacturing
+supply chains. Large plants receive demands from the upper quartile
+of the distribution to model their higher throughput. The inlay
+fraction $ric_{ijpr}$ is drawn uniformly from $[0, r^{\max}]$.
+
+\paragraph{RTI types and transport modes.}
+Each product~$p$ is compatible with a subset of RTI types
+$R_p \subseteq R$. The majority of products are assigned to a
+single RTI type ($|R_p|=1$), chosen uniformly at random from~$R$.
+A smaller fraction of products admits multiple compatible types:
+up to~2 in \textsc{Small} instances, 2--3 in \textsc{Medium}, and
+up to~4 in \textsc{Large} instances. The parameter $bf_{ijmrp}$ is
+set to~1 for every compatible product--RTI-type pair on routes where
+product~$p$ is demanded; the model selects the type to use.
+Two transport modes are considered throughout:
+$\mathcal{M} = \{\text{FTL}, \text{LTL}\}$. Mode availability
+$bm_{ijm}$ depends on distance: routes shorter than
+$d^{\text{FTL}}_{\min}$~km are LTL-only; routes longer than
+$d^{\text{LTL}}_{\max}$~km are FTL-only; all others admit both modes.
+
+\paragraph{Cost and capacity parameters.}
+Variable transport costs $c_{ijm}$ are set proportional to the
+Euclidean distance between nodes, with mode-specific rates
+$c^{\text{FTL}}$ and $c^{\text{LTL}}$ per km per m\textsuperscript{3}.
+Fixed dispatch costs $f_{ijm}$ are mode-dependent constants.
+Vehicle capacities $\delta_{ijm}$ and minimum load factors
+$\omega_{ijm}$ follow industry-standard values for full-truckload
+and groupage shipments. Transit times $l_{ijm}$ are obtained by
+dividing the Euclidean distance by an average speed of
+$v_{\text{avg}} = 500$~km/day, common to both modes.
+Mode availability thresholds are set to
+$d^{\text{FTL}}_{\min} = 50$~km and $d^{\text{LTL}}_{\max} = 800$~km.
+
+\paragraph{Safety stocks and existing pool.}
+Safety stocks at both endpoints of each route are set to three days
+of the daily average demand on that route: $ssf^{i}_{ijpr} =
+ssf^{j}_{ijpr} = 3\,\mu_{ijmpr}$ for full RTIs, and
+$sse^{i}_{ijpr} = sse^{j}_{ijpr} = 3\,NE_{ijmr}$ for empty RTIs.
+The existing RTI pool is set to zero for all types
+($s^{\text{RTI}}_r = 0$), so that the model must purchase the
+entire pool; this isolates the effect of the network design on
+total RTI investment. Non-zero initial pools are reserved for the
+case study, where historical inventory data are available.
+
+\paragraph{Linearisation.}
+The continuous queue time $q_{ijm}$ is discretised over the set of
+admissible integer values
+$\mathcal{Q}_m = \{q^{\min}_m, q^{\min}_m{+}1, \ldots,
+q^{\max}_m\}$, yielding $|\mathcal{Q}_{\text{FTL}}| = 8$ and
+$|\mathcal{Q}_{\text{LTL}}| = 5$ candidate values. Each
+candidate~$k \in \mathcal{Q}_m$ is associated with a binary
+variable indicating whether it is selected; all bilinear products
+of the form $q_{ijm} \cdot (\cdot)$ are replaced by their
+linearised counterparts as described in the model formulation.
+
+RTI volumes $v^f_r$ and $v^e_r$, purchase costs $p^{\text{RTI}}_r$,
+loss factors $\alpha^f$ and $\alpha^e$, and hub costs $fhc_i$ and
+$vhc_i$ are sampled from the ranges reported in
+Table~\ref{tab:param-ranges}.
+
+% ══════════════════════════════════════════════════════════════════
+%  INSTANCE CLASSES
+% ══════════════════════════════════════════════════════════════════
+
+\subsection{Instance Classes}
+\label{sec:instance-classes}
+
+Three classes of instances---\textsc{Small}, \textsc{Medium}, and
+\textsc{Large}---are defined by scaling the number of industrial
+zones, plants per zone, RTI types, and products.
+Table~\ref{tab:instance-classes} summarises the dimensions.
+For each class, $N_{\text{inst}}$ instances are generated with
+different random seeds to allow statistical comparison.
+
+\begin{table}[ht]
+\centering
+\caption{Instance classes and their dimensions.}
+\label{tab:instance-classes}
+\small
+\begin{tabular}{lrrrrrrrrrrr}
+\toprule
+\textbf{Class}
+  & $n_Z$ & $n^L_z$ & $n^S_z$ & $n_H$ & $|V|$ & $|E|$ (approx.)
+  & $|R|$ & $\max|R_p|$ & $|P|$ & $|\mathcal{M}|$ & $N_{\text{inst}}$ \\
+\midrule
+\textsc{Small}
+  & 2--3  & 1--2  & 2--4  & 1 & 10--20  & 15--40
+  & 2     & 2  & 3--5  & 2 & 10 \\
+\textsc{Medium}
+  & 4--6  & 2--3  & 4--8  & 2 & 30--60  & 60--150
+  & 3--4  & 3  & 6--10 & 2 & 10 \\
+\textsc{Large}
+  & 8--12 & 3--5  & 6--12 & 3 & 80--180 & 200--600
+  & 4--6  & 4  & 10--20 & 2 & 10 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\caption{Parameter ranges for instance generation.}
+\label{tab:param-ranges}
+\small
+\begin{tabular}{lll}
+\toprule
+\textbf{Parameter} & \textbf{Range / Value} & \textbf{Unit} \\
+\midrule
+\multicolumn{3}{l}{\textit{Network generation}} \\
+$L$ (area side)
+  & 500 / 1\,000 / 1\,500  & km \\
+$\sigma_{\text{intra}}$
+  & 5--15  & km \\
+$\bar{k}$ (avg.\ suppliers per plant)
+  & 2--4  & --- \\
+$p^{\text{inter}}$ (large plants)
+  & 0.7  & --- \\
+$p^{\text{intra}}$ (small plants)
+  & 0.7  & --- \\
+$n_H$ (candidate hubs per zone)
+  & 1 / 2 / 3  & --- \\
+\midrule
+\multicolumn{3}{l}{\textit{Demand and products}} \\
+$\mu_d, \sigma_d$ (demand log-normal)
+  & (2.0,\,0.8)  & RTI/day \\
+$r^{\max}$ (max inlay fraction)
+  & 0.3  & --- \\
+$|R_p|$ (compatible RTI types per product)
+  & 1 (majority); up to 2\,/\,3\,/\,4  & --- \\
+\midrule
+\multicolumn{3}{l}{\textit{Transport}} \\
+$c^{\text{FTL}},\; c^{\text{LTL}}$
+  & 0.05,\; 0.12  & \euro/km/m\textsuperscript{3} \\
+$f^{\text{FTL}},\; f^{\text{LTL}}$
+  & 150,\; 40  & \euro/shipment \\
+$\delta^{\text{FTL}},\; \delta^{\text{LTL}}$
+  & 80,\; 30  & m\textsuperscript{3} \\
+$\omega^{\text{FTL}},\; \omega^{\text{LTL}}$
+  & 40,\; 5  & m\textsuperscript{3} \\
+$v_{\text{avg}}$ (average speed)
+  & 500  & km/day \\
+$d^{\text{FTL}}_{\min}$ (FTL minimum distance)
+  & 50  & km \\
+$d^{\text{LTL}}_{\max}$ (LTL maximum distance)
+  & 800  & km \\
+$[q^{\min},q^{\max}]_{\text{FTL}}$
+  & [3,\,10]  & days \\
+$[q^{\min},q^{\max}]_{\text{LTL}}$
+  & [1,\,5]  & days \\
+$|\mathcal{Q}_{\text{FTL}}|,\; |\mathcal{Q}_{\text{LTL}}|$
+  & 8,\; 5  & --- \\
+\midrule
+\multicolumn{3}{l}{\textit{RTI and inventory}} \\
+$v^f_r$
+  & 0.3--0.8  & m\textsuperscript{3} \\
+$v^e_r / v^f_r$ (folding ratio)
+  & 0.2--0.5  & --- \\
+$p^{\text{RTI}}_r$
+  & 30--120  & \euro \\
+$s^{\text{RTI}}_r$ (existing pool)
+  & 0  & --- \\
+$ss_{\text{days}}$ (safety stock)
+  & 3  & days \\
+$\alpha^f,\; \alpha^e$
+  & 0.02--0.05  & --- \\
+\midrule
+\multicolumn{3}{l}{\textit{Hubs}} \\
+$fhc_i$
+  & 200--500  & \euro/day \\
+$vhc_i$
+  & 0.5--2.0  & \euro/m\textsuperscript{3} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ══════════════════════════════════════════════════════════════════
+%  EXPERIMENTAL SETUP
+% ══════════════════════════════════════════════════════════════════
+
+\subsection{Experimental Setup}
+\label{sec:exp-setup}
+
+All experiments are run on a workstation equipped with an
+Intel\textsuperscript{\textregistered} Core\texttrademark\
+i7-XXXXX processor (X cores, X.X~GHz) and XX~GB RAM, running
+Ubuntu~XX.XX. The linearised MILP is solved with Gurobi~XX.X
+using default settings, with a time limit of 3\,600~s for
+\textsc{Small} and \textsc{Medium} instances and 7\,200~s for
+\textsc{Large} instances. The optimality gap tolerance is set to
+0.5\,\%.
+
+% ══════════════════════════════════════════════════════════════════
+%  EXPERIMENT 1: SCALABILITY
+% ══════════════════════════════════════════════════════════════════
+
+\subsection{Experiment~1: Computational Scalability}
+\label{sec:exp-scalability}
+
+The first experiment evaluates how the solution time and the
+optimality gap scale with the instance dimensions. For each
+instance class, Table~\ref{tab:scalability} reports the number of
+binary and continuous variables, the number of constraints, the
+average solution time, the median optimality gap at termination,
+and the fraction of instances solved to the gap tolerance within
+the time limit.
+
+\begin{table}[ht]
+\centering
+\caption{Computational scalability across instance classes.
+  Times and gaps are averaged over $N_{\text{inst}}$ instances
+  per class.}
+\label{tab:scalability}
+\small
+\begin{tabular}{lrrrrrr}
+\toprule
+\textbf{Class}
+  & \textbf{Bin.\ vars}
+  & \textbf{Cont.\ vars}
+  & \textbf{Constrs}
+  & \textbf{Avg.\ time (s)}
+  & \textbf{Med.\ gap (\%)}
+  & \textbf{Solved (\%)} \\
+\midrule
+\textsc{Small}  & --- & --- & --- & --- & --- & --- \\
+\textsc{Medium} & --- & --- & --- & --- & --- & --- \\
+\textsc{Large}  & --- & --- & --- & --- & --- & --- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+To identify the dominant source of complexity, we additionally
+report solve times as a function of each individual scaling
+dimension---$|V|$, $|E|$, and $|R|$---while holding the other two
+approximately constant.
+
+% ══════════════════════════════════════════════════════════════════
+%  EXPERIMENT 2: BASELINE COMPARISON
+% ══════════════════════════════════════════════════════════════════
+
+\subsection{Experiment~2: Cost Savings Relative to the One-to-One Baseline}
+\label{sec:exp-baseline}
+
+The second experiment compares the optimised SND-RTI solution with
+the one-to-one baseline described in Section~\ref{sec:problem}. In
+the baseline, every full-RTI route $(i,j)$ is paired with a mirror
+return route $(j,i)$ that ships back the exact number of empty RTIs
+consumed at~$j$, using the same transport mode. No consolidation or
+rerouting of empty RTIs is allowed, and no hubs are activated.
+
+For each instance, we compute the baseline cost by fixing the empty
+return routes to their one-to-one configuration and solving the
+remaining model (queue times and RTI pool) to optimality. The
+relative savings of the SND-RTI solution are decomposed into three
+components:
+
+\begin{enumerate}
+  \item \textbf{Transport cost savings}
+        ($\Delta TC$): reduction in the total daily transport cost
+        $\overline{TC}$, driven by route consolidation and mode
+        switching on the return legs.
+  \item \textbf{RTI pool savings}
+        ($\Delta P$): reduction in the number of purchased RTIs,
+        achieved by shorter return cycles and better pool
+        utilisation.
+  \item \textbf{Hub cost}
+        ($\Delta CH$): the additional hub-handling cost incurred
+        by the optimised solution, partially offsetting the above
+        savings.
+\end{enumerate}
+
+Table~\ref{tab:baseline} reports the average and range of these
+savings across all instances within each class.
+
+\begin{table}[ht]
+\centering
+\caption{Cost savings of SND-RTI over the one-to-one baseline
+  (average $\pm$ std.\ dev.\ across instances).}
+\label{tab:baseline}
+\small
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Class}
+  & $\Delta TC$ (\%)
+  & $\Delta P$ (\%)
+  & $\Delta CH$ (\euro/day)
+  & \textbf{Total savings (\%)} \\
+\midrule
+\textsc{Small}  & --- & --- & --- & --- \\
+\textsc{Medium} & --- & --- & --- & --- \\
+\textsc{Large}  & --- & --- & --- & --- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+We further analyse how the network density---measured as the ratio
+$|E|/|V|$---affects the magnitude of savings, since denser networks
+offer more consolidation opportunities for empty-RTI returns.
+
+% ══════════════════════════════════════════════════════════════════
+%  DISCUSSION PLACEHOLDER
+% ══════════════════════════════════════════════════════════════════
+
+\subsection{Discussion}
+\label{sec:exp-discussion}
+
+% TODO: populate after running experiments.
+% Expected structure:
+% - Scalability: which dimension drives complexity (likely |E| x |R|)
+% - Baseline: savings increase with network density and RTI type diversity

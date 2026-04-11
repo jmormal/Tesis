@@ -3,7 +3,7 @@
 %  NOTATION CONVENTION
 % ══════════════════════════════════════════════════════════════════
 
-Table \ref{tab:nomenclature} defines the sets, paramaters and variables of the model.
+Table \ref{tab:nomenclature} defines the sets, parameters and variables of the model.
 
 % ══════════════════════════════════════════════════════════════════
 %  NOMENCLATURE
@@ -25,29 +25,26 @@ $\mathcal{M}$
 $H\subseteq V$
   & Set of hub nodes \\ \hline
 \multicolumn{2}{|l|}{\textbf{Parameters}}\\ \hline
-$\mu_{ijmpr}$
-  & Daily average demand on route $(i,j)$ by mode $m$, product $p$,
-    RTI type $r$; expressed in full RTI units \\
 $ric_{ijpr}$
   & Fraction of full shipments on route $(i,j)$ of product $p$ in
     RTI type $r$ that require a return inlay; independent of
     transport mode \\
-$bf_{ijmrp}$
-  & 1 if full RTIs of type $r$ for product $p$ may traverse route
-    $(i,j)$ by mode $m$; 0 otherwise \\
-$be_{ijmr}$
+$d_{ijp}$        & Daily demand of product $p$ on route $(i,j)$, in physical units (parts/day) \\
+$\kappa_{pr}$    & Capacity: number of units of product $p$ that fit in one RTI of type $r$ \\
+$bp_{ijp}$       & 1 if product $p$ must be transported on route $(i,j)$; 0 otherwise \\
+$bf_{pr}$        & 1 if product $p$ is compatible with RTI type $r$; 0 otherwise \\
+$ric_{pr}$       & Fraction of full shipments of product $p$ in RTI type $r$ that require a return inlay \\
+$v^{f}_{r}$      & Volume occupied by one full (or inlay) RTI of type $r$ \\
+$v^{e}_{r}$      & Volume occupied by one empty (folded) RTI of type $r$ \\
+$be_{ijr}$
   & 1 if empty RTIs of type $r$ may traverse route $(i,j)$ by
     mode $m$; 0 otherwise \\
 $bm_{ijm}$
   & 1 if mode $m$ is available on route $(i,j)$; 0 otherwise \\
-$bp_{ijp}$
-  & 1 if product $p$ must be transported on route $(i,j)$;
-    0 otherwise \\
-$c_{ijm}$
-  & Variable transport cost per unit volume on route $(i,j)$ by
-    mode $m$ \\
-$f_{ijm}$
-  & Fixed dispatch cost per shipment on route $(i,j)$ by mode $m$ \\
+$c^{\$}_{ijm}$, $c^{CO_2}_{ijm}$
+  & Variable transport cost and emissions per unit volume on route $(i,j)$ by mode $m$ \\
+$f^{\$}_{ijm}$, $f^{CO_2}_{ijm}$
+  & Fixed dispatch cost and emissions per shipment on route $(i,j)$ by mode $m$ \\
 $v^{f},\;v^{e}$
   & Volume occupied by one full (or inlay) RTI and one empty RTI,
     respectively \\
@@ -69,13 +66,14 @@ $sse^{i}_{ijpr},\;sse^{j}_{ijpr}$
 $\omega_{ijm},\;\delta_{ijm}$
   & Minimum and maximum shipment volume on route $(i,j)$ by
     mode $m$ \\
-$fhc_{i},\;vhc_{i}$
-  & Fixed activation cost and variable cost per unit volume at
-    hub $i\in H$, respectively \\
+$fhc^{\$}_{i},\;fhc^{CO_2}_{i}$
+  & Fixed activation cost and emissions at hub $i\in H$ \\
+$vhc^{\$}_{i},\;vhc^{CO_2}_{i}$
+  & Variable handling cost and emissions per unit volume at hub $i\in H$ \\
 $s^{\text{RTI}}_{r}$
   & Existing pool of RTI type $r$ available before optimisation \\
-$p^{\text{RTI}}_{r}$
-  & Unit purchase cost of one RTI of type $r$ \\
+$p^{\text{RTI},\$}_{r}$, $p^{\text{RTI},CO_2}_{r}$
+  & Unit purchase cost and embodied emissions of purchasing one RTI of type $r$ \\
 $M$
   & Sufficiently large constant (big-$M$) \\ \hline
 \multicolumn{2}{|l|}{\textbf{Decision variables --- binary}}\\ \hline
@@ -113,14 +111,14 @@ $TNC_{ijmr}$, $\;TNCF_{ijmr}$, $\;TNCE_{ijmr}$, $\;TNCI_{ijmr}$
 $P_{r}$
   & Additional RTIs of type $r$ to purchase; $P_{r}\geq 0$ \\ \hline
 \multicolumn{2}{|l|}{\textbf{Decision variables --- cost and hub}}\\ \hline
-$TCS_{ijm}$
-  & Transport cost per shipment on route $(i,j)$ by mode $m$ \\
-$TC_{ijm}$
-  & Daily transport cost on route $(i,j)$ by mode $m$ \\
-$VH_{i}$
-  & Total daily volume handled at hub $i\in H$ \\
-$CH_{i}$
-  & Daily handling cost at hub $i\in H$ \\ \hline
+$TCS^{CO_2}_{ijm}$, $TCS^\$_{ijm}$
+  & Transport cost and emissions per shipment on route $(i,j)$ by mode $m$ \\
+$TC^{CO_2}_{ijm}$, $TC^{\$}_{ijm}$
+  & Daily transport cost and emissions on route $(i,j)$ by mode $m$ \\
+$CH^{CO_2}_{i}$, $CH^\$_{i}$
+  & Daily handling cost and emissions at hub $i\in H$ \\
+$PC^{CO_2}_{r}$ , $PC^{\$}_{r}$ & Amortized daily purchase cost and emissions for RTI type $r\in R $ 
+\\  \hline
 \end{longtable}
 
 \input{notation/notation2.tex}
@@ -130,22 +128,12 @@ $CH_{i}$
 %  OBJECTIVE FUNCTION
 % ══════════════════════════════════════════════════════════════════
 
-\paragraph{Objective function.}
-The model minimises three cost components: the total daily transport
-cost across all routes and modes,
-$\overline{TC}$;
-the amortised purchase cost of any additional RTIs required to meet
-pool requirements; and the total daily hub-handling cost
-$CH$:
+\paragraph{Objective functions.}
+The model evaluates two conflicting objectives: the total economic cost ($Z^{\$}$) and the total environmental impact in terms of $\text{CO}_2$ emissions ($Z^{CO_2}$). Both objectives account for transport, RTI purchase, and hub handling operations:
 %
 \begin{align}
-  \min \quad
-  \overline{TC}
-  \;+\;
-  \sum_{r\in R} p^{\text{RTI}}_{r} \cdot P_{r}
-  \;+\;
-  \overline{CH}.
-  \label{eq:objective}
+  \min \quad Z^{\$} &= \overline{TC}^{\$} \;+ \overline{PC}^{\$}\; + \overline{CH}^{\$} \label{eq:objective-cost} \\
+  \min \quad Z^{CO_2} &= \overline{TC}^{CO_2} \;+\overline{PC}^{CO_2} \; + \overline{CH}^{CO_2} \label{eq:objective-emissions}
 \end{align}
 
 % ══════════════════════════════════════════════════════════════════
@@ -153,8 +141,8 @@ $CH$:
 % ══════════════════════════════════════════════════════════════════
 
 \paragraph{Flow conservation.}
-RTIs circulate in a closed loop: the total daily outflow of RTI
-type~$r$ from any node must equal its total daily inflow:
+RTIs circulate in a closed loop: the total average daily outflow of RTI
+type~$r$ from any node must equal its total average daily inflow:
 %
 \begin{align}
   \overline{N}_{i\cdot r} &= \overline{N}_{\cdot i r}
@@ -174,21 +162,21 @@ is physically permissible as encoded by the $b$-parameters:
 \begin{align}
   NF_{ijmpr} &\leq M\cdot XF_{ijmpr},
   \quad
-  XF_{ijmpr} \leq NF_{ijmpr}\cdot bf_{ijmpr}
-  && \forall\,(i,j)\in E,\;m\in\mathcal{M},\;p,\;r\in R
+  XF_{ijmpr} \leq NF_{ijmpr}\cdot bf_{ijp}\cdot bm_{ijm} \cdot bp_{pr}
+  && \forall\,(i,j)\in E,\;m\in\mathcal{M},\;p \in P,\;r\in R
   \label{eq:binary-full}\\
   NI_{ijmpr} &\leq M\cdot XI_{ijmpr},
   \quad
-  XI_{ijmpr} \leq NI_{ijmpr}\cdot bf_{jimpr}
-  && \forall\,(i,j)\in E,\;m\in\mathcal{M},\;p,\;r\in R
+  XI_{ijmpr} \leq NI_{ijmpr}\cdot bf_{jip}\cdot bm_{ijm} \cdot bp_{pr}
+  && \forall\,(i,j)\in E,\;m\in\mathcal{M},\;p \in P,\;r\in R
   \label{eq:binary-inlay}\\
   NE_{ijmr} &\leq M\cdot XE_{ijmr},
   \quad
-  XE_{ijmr} \leq NE_{ijmr}\cdot be_{ijmr}
-  && \forall\,(i,j)\in E,\;m\in\mathcal{M},\;p,\;r\in R.
+  XE_{ijmr} \leq NE_{ijmr}\cdot be_{ijr} \cdot bm_{ijm}
+  && \forall\,(i,j)\in E,\;m\in\mathcal{M},\;p \in P,\;r\in R.
   \label{eq:binary-empty} \\ 
   N_{ijmr} &= \overline{NF}_{ijmr}+\overline{NI}_{ijpr}+NE_{ijmr}
-  && \forall\,(i,j)\in E,\;m\in\mathcal{M},\;p,\;r\in R. 
+  && \forall\,(i,j)\in E,\;m\in\mathcal{M},\;p \in P,\;r\in R. 
 \end{align}
 
 % ══════════════════════════════════════════════════════════════════
@@ -196,8 +184,7 @@ is physically permissible as encoded by the $b$-parameters:
 % ══════════════════════════════════════════════════════════════════
 
 \paragraph{Route activation.}
-A route is active if and only if it carries at least one RTI
-stream: full, empty, or inlay:
+A route is active if and only if it carries at least one RTI in any state: full, empty, or inlay:
 %
 \begin{align}
   3\cdot X_{ijmr}
@@ -215,15 +202,14 @@ stream: full, empty, or inlay:
 % ══════════════════════════════════════════════════════════════════
 
 \paragraph{Full-route activation.}
-For any given product~$p$, at most one RTI type~$r$ may be used on
-a given route. The at-most-one aggregate $\widehat{XF}_{ijp}$
+For any given product~$p$ that has to be transported from $i $ to $j$, only one RTI type~$r$ can be used. $\widehat{XF}_{ijp}$
  therefore equals~1 if and only if
-product~$p$ is designated for route $(i,j)$, as encoded by the
+product~$p$ is used in route $(i,j)$, as encoded by the
 binary parameter $bp_{ijp}$:
 %
 \begin{align}
-  \widehat{XF}_{ijp} &= bp_{ijp}
-  && \forall\,(i,j)\in E,\;p.
+  \widehat{XF}_{ijp} &= bf_{ijp}
+  && \forall\,(i,j)\in E,\;p \in P.
   \label{eq:full-activation}
 \end{align}
 This simultaneously enforces demand-driven activation and the
@@ -239,7 +225,7 @@ there, and at most one mode may operate on any given route:
 %
 \begin{align}
   \widecheck{X}_{ijm}
-    &\leqORIG bm_{ijm}
+    &\leq bm_{ijm}
   && \forall\,(i,j)\in E,\;m\in\mathcal{M}
   \label{eq:mode-avail}\\
   \sum_{m\in\mathcal{M}} \widecheck{X}_{ijm}
@@ -276,9 +262,12 @@ from~$i$ is used:
   XH_i &= \widecheck{X}_{i\cdot}
   && \forall,i\in H
   \label{eq:hub-XH}\\[4pt]
-  CH_i &= fhc_i \cdot XH_i + vhc_i \cdot \overline{V}_{i\cdot}
+  CH^{\$}_i &= fhc^{\$}_i \cdot XH_i + vhc^{\$}_i \cdot \overline{V}_{i\cdot}
+  && \forall\,i\in H
+  \label{eq:hub-CH-cost}\\[4pt]
+  CH^{CO_2}_i &= fhc^{CO_2}_i \cdot XH_i + vhc^{CO_2}_i \cdot \overline{V}_{i\cdot}
   && \forall\,i\in H.
-  \label{eq:hub-CH}
+  \label{eq:hub-CH-emissions}
 \end{align}
 
 % ══════════════════════════════════════════════════════════════════
@@ -286,10 +275,9 @@ from~$i$ is used:
 % ══════════════════════════════════════════════════════════════════
 
 \paragraph{Full-RTI route flow.}
-The daily full-RTI flow on an active route equals the prescribed
-demand; on an inactive route it is forced to zero:
+The number of full containers for a route depends on the chosen RTI type $r \in R$ and the demand of the product $p$:
 \begin{align}
-  NF_{ijmpr} &= \mu_{ijmpr}\cdot XF_{ijmpr}
+  NF_{ijmpr} \cdot \kappa_{pr} &\geq d_{ijp}\cdot XF_{ijmpr}
   && \forall\,(i,j)\in E,\;m\in\mathcal{M},\;p,\;r\in R.
   \label{eq:demand}
 \end{align}
@@ -302,10 +290,11 @@ demand; on an inactive route it is forced to zero:
 Where a full shipment on route $(i,j)$ requires an inlay, that
 inlay is returned on the reverse route $(j,i)$. The daily
 return-inlay flow is proportional to the fraction of full
-shipments that require one:
+shipments that require one and the RTI is the same:
 %
 \begin{align}
-  NI_{jimpr} &= ric_{ijpr}\cdot\mu_{ijmpr}\cdot XF_{ijmpr}
+  \overline{XI}_{jipr} & = \overline{XF}_{ijpr} && \forall\,(i,j)\in E,\;m\in\mathcal{M},\;p,\;r\in R, \\ 
+  \overline{NI}_{jipr} &\geq ric_{pr}\cdot \overline{NF}_{ijpr}
   && \forall\,(i,j)\in E,\;m\in\mathcal{M},\;p,\;r\in R.
   \label{eq:inlay}
 \end{align}
@@ -315,22 +304,21 @@ shipments that require one:
 % ══════════════════════════════════════════════════════════════════
 
 \paragraph{Daily average volumes.}
-Full and inlay RTIs are transported assembled and occupy volume
-$v^f$ per unit; empty RTIs are collapsed or nested and occupy the
-smaller volume $v^e$ per unit. The total daily volume on each route
-is the sum of the three streams:
+Full and inlay RTIs are carrying items and occupy volume
+$v^f$ per unit; empty RTIs are collapsed and occupy volume $v^e$ per unit. The total daily volume on each route
+is the sum of the three:
 
 \begin{align}
-  VF_{ijmr} &= \overline{NF}_{ijmr}\cdot v^f
+  VF_{ijmpr} &= {NF}_{ijmpr}\cdot v^f
   && \forall\,(i,j)\in E,\;m\in\mathcal{M},\;p,\;r\in R
   \label{eq:vol-F}\\
-  VI_{ijmr} &= \overline{NI}_{ijmr}\cdot v^f
+  VI_{ijmpr} &= {NI}_{ijmpr}\cdot v^f
   && \forall\,(i,j)\in E,\;m\in\mathcal{M},\;p,\;r\in R
   \label{eq:vol-I}\\
   VE_{ijmr} &= NE_{ijmr}\cdot v^e
   && \forall\,(i,j)\in E,\;m\in\mathcal{M},\;p,\;r\in R
   \label{eq:vol-E}\\
-  V_{ijmr}  &= VF_{ijmr}+VI_{ijmr}+VE_{ijmr}
+  V_{ijmr}  &= \overline{VF}_{ijmr}+\overline{VI}_{ijmr}+VE_{ijmr}
   && \forall\,(i,j)\in E,\;m\in\mathcal{M},\;p,\;r\in R.
   \label{eq:vol-total}
 \end{align}
@@ -340,16 +328,16 @@ is the sum of the three streams:
 % ══════════════════════════════════════════════════════════════════
 
 \paragraph{Per-shipment RTI counts.}
-RTIs accumulate between consecutive dispatches; the number loaded
-onto each shipment therefore equals the daily average flow
+Shipments are made with a regular frequency denoted by $q_{ijm}$. The number of RTIs loaded
+onto each shipment equals the daily average flow
 multiplied by the queue time. These products are \emph{nonlinear}
 and will be linearised in Section~\ref{sec:linearisation}:
 
 \begin{align}
-  NSF_{ijmr} &= \overline{NF}_{ijmr}\cdot q_{ijm}
+  NSF_{ijmpr} &= {NF}_{ijmpr}\cdot q_{ijm}
   && \forall\,(i,j)\in E,\;m\in\mathcal{M},\;p,\;r\in R
   \label{eq:ship-NF}\\
-  NSI_{ijmr} &= \overline{NI}_{ijmr}\cdot q_{ijm}
+  NSI_{ijmpr} &= {NI}_{ijmpr}\cdot q_{ijm}
   && \forall\,(i,j)\in E,\;m\in\mathcal{M},\;p,\;r\in R
   \label{eq:ship-NI}\\
   NSE_{ijmr} &= NE_{ijmr}\cdot q_{ijm}
@@ -369,16 +357,16 @@ Analogously, per-shipment volumes are the daily average volumes
 scaled by the queue time, and are likewise nonlinear:
 %
 \begin{align}
-  VSF_{ijmr} &= VF_{ijmr}\cdot q_{ijm}
+  VSF_{ijmpr} &= VF_{ijmpr}\cdot q_{ijm}
   && \forall\,(i,j)\in E,\;m\in\mathcal{M},\;p,\;r\in R
   \label{eq:ship-VF}\\
-  VSI_{ijmr} &= VI_{ijmr}\cdot q_{ijm}
+  VSI_{ijmpr} &= VI_{ijmpr}\cdot q_{ijm}
   && \forall\,(i,j)\in E,\;m\in\mathcal{M},\;p,\;r\in R
   \label{eq:ship-VI}\\
   VSE_{ijmr} &= VE_{ijmr}\cdot q_{ijm}
   && \forall\,(i,j)\in E,\;m\in\mathcal{M},\;p,\;r\in R
   \label{eq:ship-VE}\\
-  VS_{ijmr}  &= VSF_{ijmr}+VSI_{ijmr}+VSE_{ijmr}
+  VS_{ijmr}  &= \overline{VSF}_{ijmr}+\overline{VSI}_{ijmr}+VSE_{ijmr}
   && \forall\,(i,j)\in E,\;m\in\mathcal{M},\;p,\;r\in R.
   \label{eq:ship-VS}
 \end{align}
@@ -405,8 +393,7 @@ routes the queue time collapses to zero:
 % ══════════════════════════════════════════════════════════════════
 
 \paragraph{Shipment volume bounds.}
-Each active shipment must meet a minimum load factor and must not
-exceed the vehicle capacity of the selected mode:
+Each active shipment must meet a minimum and maximum load factor of the selected mode:
 %
 \begin{align}
   \omega_{ijm}\cdot\widecheck{X}_{ijm}
@@ -426,9 +413,7 @@ stock loaded per shipment; the in-transit stock en route; the
 safety stocks held at both endpoints; and a margin for maintenance
 losses. Safety stocks depend on the route, product, and RTI type
 only, and do not vary by mode. Full and inlay RTIs attract a loss
-factor of $\alpha^{f}$; empty RTIs attract $\alpha^{e}$. Inlay RTIs
-carry no safety-stock term because inlays are returned immediately
-upon receipt and are not stocked at either endpoint:
+factor of $\alpha^{f}$; empty RTIs attract $\alpha^{e}$. We do not contemplate the necessesity of considering safety stocks for inlay RTIs. 
 %
 \begin{align}
   TNCF_{ijmr}
@@ -466,11 +451,10 @@ upon receipt and are not stocked at either endpoint:
 
 \paragraph{RTI purchase.}
 If the total pool requirement across all routes exceeds the
-existing stock of RTI type~$r$, the shortfall must be procured
-at unit cost $p^{\text{RTI}}_{r}$:
+existing stock of RTI type~$r$, the shortfall must be procured:
 %
 \begin{align}
-  TNC_{r}
+  \overline{TNC}_{r}
   \;\leq\; s^{\text{RTI}}_{r} + P_{r},
   \qquad P_{r}\geq 0
   && \forall\,r\in R.
@@ -481,22 +465,31 @@ at unit cost $p^{\text{RTI}}_{r}$:
 %  DAILY TRANSPORT COSTS
 % ══════════════════════════════════════════════════════════════════
 
-\paragraph{Daily transport costs.}
-The cost of a single shipment on route $(i,j)$ by mode $m$ combines
+\paragraph{Daily transport costs and emissions.}
+The cost and emissions of a single shipment on route $(i,j)$ by mode $m$ combine
 a variable charge proportional to total shipment volume and a fixed
-dispatch cost incurred whenever the route is active. Converting to
+dispatch value incurred whenever the route is active. Converting to
 a daily equivalent by dividing by the queue time yields the daily
-route cost; this division is \emph{nonlinear} and will be
+route impact; this division is \emph{nonlinear} and will be
 linearised in Section~\ref{sec:linearisation}:
 %
 \begin{align}
-  TCS_{ijm}
-  &= VS_{ijm}\cdot c_{ijm}
-     + \overline{X}_{ijm}\cdot f_{ijm}
+  TCS^{\$}_{ijm}
+  &= VS_{ijm}\cdot c^{\$}_{ijm}
+     + \widecheck{X}_{ijm}\cdot f^{\$}_{ijm}
   && \forall\,(i,j)\in E,\;m\in\mathcal{M}
-  \label{eq:cost-ship}\\[4pt]
-  TC_{ijm}\cdot q_{ijm}
-  &= TCS_{ijm}
+  \label{eq:cost-ship-money}\\[4pt]
+  TCS^{CO_2}_{ijm}
+  &= VS_{ijm}\cdot c^{CO_2}_{ijm}
+     + \widecheck{X}_{ijm}\cdot f^{CO_2}_{ijm}
+  && \forall\,(i,j)\in E,\;m\in\mathcal{M}
+  \label{eq:cost-ship-emissions}\\[4pt]
+  TC^{\$}_{ijm}\cdot q_{ijm}
+  &= TCS^{\$}_{ijm}
+  && \forall\,(i,j)\in E,\;m\in\mathcal{M}
+  \label{eq:cost-daily-money}\\[4pt]
+  TC^{CO_2}_{ijm}\cdot q_{ijm}
+  &= TCS^{CO_2}_{ijm}
   && \forall\,(i,j)\in E,\;m\in\mathcal{M}.
-  \label{eq:cost-daily}
+  \label{eq:cost-daily-emissions}
 \end{align}

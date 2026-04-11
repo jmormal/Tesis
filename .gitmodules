@@ -1,0 +1,6 @@
+[submodule "Clustering"]
+	path = Clustering
+	url = https://github.com/jmormal/DSA_2024v4.git
+[submodule "CIO2026"]
+	path = CIO2026
+	url = https://github.com/jmormal/CIO12026.git
