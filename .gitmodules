@@ -4,3 +4,6 @@
 [submodule "CIO2026"]
 	path = CIO2026
 	url = https://github.com/jmormal/CIO12026.git
+[submodule "3DFulltruckRTI"]
+	path = 3DFulltruckRTI
+	url = https://github.com/jmormal/3D_RTI_paper.git
